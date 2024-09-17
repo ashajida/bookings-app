@@ -2,9 +2,9 @@ import { PrismaClient } from '@prisma/client'
 
 const client = new PrismaClient();
 
-export const createAppointment = async (data) => {
+export const createBooking = async () => {
     try {
-        const response = await client.appointment.create(data);
+        const response = await client.booking.create();
         return response;
     } catch(e) {
         console.log(e);
