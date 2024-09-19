@@ -13,9 +13,11 @@ datasource db {
 model Owner {
   id         Int        @id @default(autoincrement())
   name       String
+  phone      String @unique
   email      String     @unique
   services   Service[]  // One-to-many relationship with services
   availabilities Availability[] // One-to-many relationship with availabilities
+  operationTime OperationTime?
 }
 
 model Customer {
@@ -30,19 +32,19 @@ model Service {
   serviceName String
   description String?
   price       Decimal
+  duration    String
   ownerId     Int
   owner       Owner        @relation(fields: [ownerId], references: [id]) // Many-to-one relationship with Owner
   availabilityServices AvailabilityService[] // Many-to-many relationship through pivot table
   bookings Booking[]
-  operationTime OperationTime
 }
 
 model OperationTime {
   id          Int          @id @default(autoincrement())
   opening DateTime
   closing DateTime
-  service      Service   @relation(fields: [serviceId], references: [id])
-  serviceId Int @unique
+  owner Owner @relation(fields: [ownerId], references: [id])
+  ownerId Int @unique
 }
 
 model Availability {

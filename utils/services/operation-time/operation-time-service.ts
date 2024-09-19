@@ -1,10 +1,10 @@
-import { PrismaClient, Service } from '@prisma/client'
+import { PrismaClient, OperationTime } from '@prisma/client'
 
 const client = new PrismaClient();
 
-export const createService = async (data: Service) => {
+export const createOperationTime = async (data: OperationTime) => {
     try {
-        const response = await client.service.create({ data: {
+        const response = await client.operationTime.create({ data: {
             ...data, 
         }});
         return response;
@@ -13,9 +13,9 @@ export const createService = async (data: Service) => {
     }
 }
 
-export const findService = async (id: number) => {
+export const findOperationTime = async (id: number) => {
     try {
-        const response = await client.service.findUnique({
+        const response = await client.operationTime.findUnique({
             where: {
                 id
             }
@@ -26,18 +26,18 @@ export const findService = async (id: number) => {
     }
 }
 
-export const findAllServices = async () => {
+export const findAllOperationTimes = async () => {
     try {
-        const response = await client.service.findMany();
+        const response = await client.operationTime.findMany();
         return response;
     } catch (e) {
         console.log(e)
     }
 }
 
-export const updateService = async (id: number, data: Partial<Service>) => {
+export const updateOperationTime = async (id: number, data: Partial<OperationTime>) => {
     try {
-        const response = await client.service.update({
+        const response = await client.operationTime.update({
             where: {
                 id
             },
@@ -51,9 +51,9 @@ export const updateService = async (id: number, data: Partial<Service>) => {
     }
 }
 
-export const deleteService = async (id: number) => {
+export const deleteoperationTime = async (id: number) => {
     try {
-        const response = await client.service.delete({
+        const response = await client.operationTime.delete({
             where: {
                 id
             }
