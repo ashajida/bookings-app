@@ -10,6 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id       String    @id
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
 model Owner {
   id         Int        @id @default(autoincrement())
   name       String
@@ -18,6 +31,7 @@ model Owner {
   services   Service[]  // One-to-many relationship with services
   availabilities Availability[] // One-to-many relationship with availabilities
   operationTime OperationTime?
+  categories Category[]
 }
 
 model Customer {
@@ -37,6 +51,16 @@ model Service {
   owner       Owner        @relation(fields: [ownerId], references: [id]) // Many-to-one relationship with Owner
   availabilityServices AvailabilityService[] // Many-to-many relationship through pivot table
   bookings Booking[]
+  categoryId Int
+  category Category?  @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  categoryName String
+  services Service[]
+  ownerId Int
+  owner Owner?  @relation(fields: [ownerId], references: [id])
 }
 
 model OperationTime {
@@ -74,7 +98,6 @@ model Booking {
   availabilityId Int
   serviceId      Int
   bookingDate    DateTime   @default(now())
-
   customer       Customer   @relation(fields: [customerId], references: [id]) // Many-to-one relationship with Customer
   availability   Availability @relation(fields: [availabilityId], references: [id]) // Many-to-one relationship with Availability
   service        Service    @relation(fields: [serviceId], references: [id]) // Many-to-one relationship with Service

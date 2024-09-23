@@ -1,4 +1,6 @@
-import { PrismaClient, Service } from '@prisma/client'
+"use server";
+
+import { PrismaClient, Service} from '@prisma/client'
 
 const client = new PrismaClient();
 
@@ -28,7 +30,14 @@ export const findService = async (id: number) => {
 
 export const findAllServices = async () => {
     try {
-        const response = await client.service.findMany();
+        const response = await client.service.findMany({
+            where: {
+                ownerId: 1
+            }, 
+            include: {
+                category: true
+            }
+        });
         return response;
     } catch (e) {
         console.log(e)
