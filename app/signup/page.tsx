@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { createOwner } from "@/utils/services/owner/owner-services";
+import { createOwner } from "@/lib/utils/services/user/user-services";
 import React, { FormEvent } from "react";
 
 

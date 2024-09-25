@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
 import OperationTimeHourMinute from "./OperationTimeHourMinute";
-import { createOperationTime } from "@/utils/services/operation-time/operation-time-service";
+import { createOperationTime } from "@/lib/utils/services/operation-time/operation-time-service";
 
 const OperationTime = () => {
 

@@ -10,24 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       String    @id
-  sessions Session[]
-}
 
 model Session {
   id        String   @id
-  userId    String
+  userId    Int
   expiresAt DateTime
-
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
-model Owner {
+model User {
   id         Int        @id @default(autoincrement())
+  sessions Session[]
   name       String
-  phone      String @unique
+  phone      String     @unique
   email      String     @unique
+  password   String
   services   Service[]  // One-to-many relationship with services
   availabilities Availability[] // One-to-many relationship with availabilities
   operationTime OperationTime?
@@ -47,8 +44,8 @@ model Service {
   description String?
   price       Decimal
   duration    String
-  ownerId     Int
-  owner       Owner        @relation(fields: [ownerId], references: [id]) // Many-to-one relationship with Owner
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id]) // Many-to-one relationship with user
   availabilityServices AvailabilityService[] // Many-to-many relationship through pivot table
   bookings Booking[]
   categoryId Int
@@ -59,24 +56,24 @@ model Category {
   id Int @id @default(autoincrement())
   categoryName String
   services Service[]
-  ownerId Int
-  owner Owner?  @relation(fields: [ownerId], references: [id])
+  userId Int
+  user User?  @relation(fields: [userId], references: [id])
 }
 
 model OperationTime {
   id          Int          @id @default(autoincrement())
   opening DateTime
   closing DateTime
-  owner Owner @relation(fields: [ownerId], references: [id])
-  ownerId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  userId Int @unique
 }
 
 model Availability {
   id          Int          @id @default(autoincrement())
   dateAvailable DateTime
   timeSlot    DateTime
-  ownerId     Int
-  owner       Owner        @relation(fields: [ownerId], references: [id]) // Many-to-one relationship with Owner
+  userId     Int
+  user       User        @relation(fields: [userId], references: [id]) // Many-to-one relationship with user
   availabilityServices AvailabilityService[] // Many-to-many relationship through pivot table
   bookings    Booking[]  // One-to-many relationship with bookings
 }

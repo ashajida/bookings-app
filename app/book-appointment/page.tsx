@@ -10,8 +10,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AccordionItem } from "@radix-ui/react-accordion";
-import { findAllServices } from "@/utils/services/service/service-services";
-import { findAllCategories } from "@/utils/services/category/category-services";
+import { findAllServices } from "@/lib/utils/services/service/service-services";
+import { findAllCategories } from "@/lib/utils/services/category/category-services";
 
 type BookAppointmentResponse = {
   success: boolean;

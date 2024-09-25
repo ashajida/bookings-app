@@ -1,3 +1,5 @@
+import { PrismaClient } from "@prisma/client";
+import { PrismaAdapter } from "@lucia-auth/adapter-prisma";
 import { Lucia } from "lucia";
 
 

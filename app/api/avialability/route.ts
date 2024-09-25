@@ -1,4 +1,4 @@
-import { generateTimeSlots } from "@/utils/functions/generateTimeSlots";
+import { generateTimeSlots } from "@/lib/utils/functions/generateTimeSlots";
 import { NextResponse } from "next/server";
 
 // GET all bookings

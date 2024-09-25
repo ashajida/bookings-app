@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createService } from "@/utils/services/service/service-services";
+import { createService } from "@/lib/utils/services/service/service-services";
 import React from "react";
 
 const Service = () => {

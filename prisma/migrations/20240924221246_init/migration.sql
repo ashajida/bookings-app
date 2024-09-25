@@ -1,5 +1,13 @@
 -- CreateTable
-CREATE TABLE "Owner" (
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" INTEGER NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "User" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
@@ -20,9 +28,9 @@ CREATE TABLE "Service" (
     "description" TEXT,
     "price" DECIMAL NOT NULL,
     "duration" TEXT NOT NULL,
-    "ownerId" INTEGER NOT NULL,
+    "userId" INTEGER NOT NULL,
     "categoryId" INTEGER NOT NULL,
-    CONSTRAINT "Service_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "Owner" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Service_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Service_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -30,8 +38,8 @@ CREATE TABLE "Service" (
 CREATE TABLE "Category" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "categoryName" TEXT NOT NULL,
-    "ownerId" INTEGER NOT NULL,
-    CONSTRAINT "Category_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "Owner" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "Category_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -39,8 +47,8 @@ CREATE TABLE "OperationTime" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "opening" DATETIME NOT NULL,
     "closing" DATETIME NOT NULL,
-    "ownerId" INTEGER NOT NULL,
-    CONSTRAINT "OperationTime_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "Owner" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "OperationTime_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -48,8 +56,8 @@ CREATE TABLE "Availability" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "dateAvailable" DATETIME NOT NULL,
     "timeSlot" DATETIME NOT NULL,
-    "ownerId" INTEGER NOT NULL,
-    CONSTRAINT "Availability_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "Owner" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "Availability_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -74,16 +82,16 @@ CREATE TABLE "Booking" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Owner_phone_key" ON "Owner"("phone");
+CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Owner_email_key" ON "Owner"("email");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "OperationTime_ownerId_key" ON "OperationTime"("ownerId");
+CREATE UNIQUE INDEX "OperationTime_userId_key" ON "OperationTime"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AvailabilityService_availabilityId_serviceId_key" ON "AvailabilityService"("availabilityId", "serviceId");

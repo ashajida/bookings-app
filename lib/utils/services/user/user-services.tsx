@@ -1,10 +1,10 @@
-import { PrismaClient, Owner } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 
 const client = new PrismaClient();
 
-export const createOwner = async (data: Owner) => {
+export const createUser = async (data: User) => {
   try {
-    const response = await client.owner.create({
+    const response = await client.user.create({
       data: {
         ...data,
       },
@@ -15,9 +15,9 @@ export const createOwner = async (data: Owner) => {
   }
 };
 
-export const findOwner = async (id: number) => {
+export const findUser = async (id: number) => {
   try {
-    const response = await client.owner.findUnique({
+    const response = await client.user.findUnique({
       where: {
         id,
       },
@@ -28,18 +28,18 @@ export const findOwner = async (id: number) => {
   }
 };
 
-export const findAllOwners = async () => {
+export const findAllUsers = async () => {
   try {
-    const response = await client.owner.findMany();
+    const response = await client.user.findMany();
     return response;
   } catch (e) {
     console.log(e);
   }
 };
 
-export const updateOwner = async (id: number, data: Partial<Owner>) => {
+export const updateUser = async (id: number, data: Partial<User>) => {
   try {
-    const response = await client.owner.update({
+    const response = await client.user.update({
       where: {
         id,
       },
@@ -53,9 +53,9 @@ export const updateOwner = async (id: number, data: Partial<Owner>) => {
   }
 };
 
-export const deleteOwner = async (id: number) => {
+export const deleteUser = async (id: number) => {
   try {
-    const response = await client.owner.delete({
+    const response = await client.user.delete({
       where: {
         id,
       },
