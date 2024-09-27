@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signup } from "@/lib/actions/signup";
+import { login, signin } from "@/lib/actions/login";
 import { validateRequest } from "@/lib/validateRequest";
 import { redirect } from "next/navigation";
 import React from "react";
 
-const Signup = async () => {
+const Signin = async () => {
   const { user } = await validateRequest();
 
   if (user) {
@@ -16,23 +16,11 @@ const Signup = async () => {
     <div className="container mx-auto">
       <div className="">
         <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-[500px] max-w-[90%] p-8">
-          <form className="flex gap-3 flex-col" action={signup}>
-            <Input
-              name="name"
-              type="text"
-              placeholder="Name"
-              className="w-full"
-            />
+          <form className="flex gap-3 flex-col" action={login}>
             <Input
               name="email"
               type="email"
               placeholder="Email"
-              className="w-full"
-            />
-            <Input
-              name="phone"
-              type="phone"
-              placeholder="phone"
               className="w-full"
             />
             <Input
@@ -49,4 +37,4 @@ const Signup = async () => {
   );
 };
 
-export default Signup;
+export default Signin;

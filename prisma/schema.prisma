@@ -13,21 +13,21 @@ datasource db {
 
 model Session {
   id        String   @id
-  userId    Int
+  userId    String
   expiresAt DateTime
   user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
+  id         String @id
   sessions Session[]
   name       String
   phone      String     @unique
   email      String     @unique
   password   String
   services   Service[]  // One-to-many relationship with services
-  availabilities Availability[] // One-to-many relationship with availabilities
   operationTime OperationTime?
+  blockedDates BlockedDate?
   categories Category[]
 }
 
@@ -44,11 +44,10 @@ model Service {
   description String?
   price       Decimal
   duration    String
-  userId     Int
+  userId      String
   user       User        @relation(fields: [userId], references: [id]) // Many-to-one relationship with user
-  availabilityServices AvailabilityService[] // Many-to-many relationship through pivot table
   bookings Booking[]
-  categoryId Int
+  categoryId Int?
   category Category?  @relation(fields: [categoryId], references: [id])
 }
 
@@ -56,7 +55,7 @@ model Category {
   id Int @id @default(autoincrement())
   categoryName String
   services Service[]
-  userId Int
+  userId String
   user User?  @relation(fields: [userId], references: [id])
 }
 
@@ -65,37 +64,23 @@ model OperationTime {
   opening DateTime
   closing DateTime
   user User @relation(fields: [userId], references: [id])
-  userId Int @unique
+  userId String @unique
 }
 
-model Availability {
+model BlockedDate {
   id          Int          @id @default(autoincrement())
-  dateAvailable DateTime
-  timeSlot    DateTime
-  userId     Int
-  user       User        @relation(fields: [userId], references: [id]) // Many-to-one relationship with user
-  availabilityServices AvailabilityService[] // Many-to-many relationship through pivot table
-  bookings    Booking[]  // One-to-many relationship with bookings
+  date DateTime
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
 }
 
-// Many-to-many relationship between Availability and Service through pivot table
-model AvailabilityService {
-  id             Int         @id @default(autoincrement())
-  availabilityId Int
-  serviceId      Int
-  availability   Availability @relation(fields: [availabilityId], references: [id])
-  service        Service      @relation(fields: [serviceId], references: [id])
-
-  @@unique([availabilityId, serviceId]) // Ensures that the same service can't be assigned twice to the same availability
-}
 
 model Booking {
   id             Int       @id @default(autoincrement())
-  customerId     Int
-  availabilityId Int
+  customerId     Int?
   serviceId      Int
-  bookingDate    DateTime   @default(now())
-  customer       Customer   @relation(fields: [customerId], references: [id]) // Many-to-one relationship with Customer
-  availability   Availability @relation(fields: [availabilityId], references: [id]) // Many-to-one relationship with Availability
+  date       DateTime   @default(now())
+  customer       Customer?   @relation(fields: [customerId], references: [id]) // Many-to-one relationship with Customer
   service        Service    @relation(fields: [serviceId], references: [id]) // Many-to-one relationship with Service
+  status         String?
 }

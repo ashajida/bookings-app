@@ -1,17 +1,19 @@
 import Sidebar from "@/components/sidebar/sidebar";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
-import { Sheet, Menu, Link, Package2, Home, ShoppingCart, Badge, Package, Users, LineChart, Search, CircleUser } from "lucide-react";
+import { validateRequest } from "@/lib/validateRequest";
+import { redirect } from "next/navigation";
 
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = await validateRequest();
+
+  if (!user) {
+    return redirect("/login");
+  }
+
   return (
           <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
             <Sidebar />

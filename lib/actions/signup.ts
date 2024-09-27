@@ -1,54 +1,51 @@
 import { generateId } from "lucia";
 import { createUser } from "../utils/services/user/user-services";
-import { hash } from "@node-rs/argon2";
+import { hash } from "argon2";
 import { lucia } from "../auth";
+//import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export const signup = async (formData: FormData) => {
   "use server";
 
-  //e.preventDefault();
+  const password = formData.get("password")?.toString();
+  if (!password) return;
 
-  //const form = e.target as HTMLFormElement;
-  //const formData = new FormData(form);
+  const passwordHash = await hash(password);
 
-  const password = formData.get('password')?.toString();
-  if(!password) return;
+  const name = formData.get("name")?.toString();
+  if (!name) return;
 
-    const passwordHash = await hash(password, {
-        memoryCost: 19456,
-        timeCost: 2,
-        outputLen: 32,
-        parallelism: 1
-    });
+  const phone = formData.get("phone")?.toString();
+  if (!phone) return;
 
-    const name = formData.get('name')?.toString();
-    if(!name) return;
-
-    const phone = formData.get('phone')?.toString();
-    if(!phone) return;
-
-    const email = formData.get('email')?.toString();
-    if(!name) return;
+  const email = formData.get("email")?.toString();
+  if (!email) return;
 
   const id = generateId(15);
 
-
   const data = {
-    id: parseInt(id),
+    id: id,
     name,
     phone,
     email,
-    password: passwordHash
+    password: passwordHash,
   };
-
 
   try {
     const response = await createUser(data);
-    const session = await lucia.createSession(id, {});
-	const sessionCookie = lucia.createSessionCookie(session.id);
-	cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-	return redirect("/");
     console.log(response);
+
+    const session = await lucia.createSession(id, {});
+    const sessionCookie = lucia.createSessionCookie(session.id);
+
+    cookies().set(
+      sessionCookie.name,
+      sessionCookie.value,
+      sessionCookie.attributes
+    );
+
+    //return redirect("/");
   } catch (error) {
     console.log(error);
   }
