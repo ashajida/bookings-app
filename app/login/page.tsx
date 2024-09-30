@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { login, signin } from "@/lib/actions/login";
+import { login } from "@/lib/actions/login";
 import { validateRequest } from "@/lib/validateRequest";
 import { redirect } from "next/navigation";
 import React from "react";

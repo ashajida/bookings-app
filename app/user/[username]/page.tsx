@@ -21,8 +21,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { submitBookingAction } from "@/lib/actions/submitBookingAction";
+import { submitBookingAction } from "@/lib/actions/submit-booking-action";
 import { useParams } from "next/navigation";
+import { findAllBlockedDates } from "@/lib/utils/services/blocked-days/blocked-date-service";
 
 type BookAppointmentResponse = {
   success: boolean;
@@ -32,7 +33,7 @@ type BookAppointmentResponse = {
 
 export type AppointmentData = {
   serviceId: number;
-  date: string;
+  chosenDate: Date;
   hour: string;
   minutes: string;
   status: string;
@@ -49,16 +50,18 @@ const User = () => {
   const [appointmentData, setAppointmentData] = useState<
     Partial<AppointmentData>
   >({});
+  const [blockedDates, setBlockedDates] = useState<{[key: string]: any}[]>([]);
 
   const params = useParams();
   const username = params.username;
 
   const handleSelect = async (date?: Date) => {
+    
     if (!date) return;
 
     setAppointmentData({
       ...appointmentData,
-      date: date.toString(),
+      chosenDate: date,
       status: "pending",
     });
 
@@ -96,21 +99,17 @@ const User = () => {
 
     //const { date } = appointmentData;
 
-    if (!date) return;
-
-    console.log(date);
+    //if (!date) return;
 
     const timeArray = time.split(":");
 
     setAppointmentData({
       ...appointmentData,
-      date: date.toString(),
       hour: timeArray[0],
       minutes: timeArray[1],
     });
 
     setVisibleFrame("Confirmation");
-    console.log(appointmentData);
   };
 
   useEffect(() => {
@@ -127,21 +126,35 @@ const User = () => {
       }
     };
 
-    const getCategories = async () => {
+    const getBlockedDates = async () => {
+      if (!username) return
       try {
-        const response = await findAllCategories();
-        if (response) {
-          setCategories(response);
-        }
+        const response = await findAllBlockedDates(username.toString());
+        console.log(response, 'responses 12345');
+        if(!response) return;
+        setBlockedDates(response);
       } catch (error) {
-        console.log(error);
+
       }
+    }
+
+    const getCategories = async () => {
+      // try {
+      //   const response = await findAllCategories();
+      //   if (response) {
+      //     setCategories(response);
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      // }
     };
 
-    getCategories();
+    //getCategories();
     getServices();
+    getBlockedDates();
     return () => {
       setServices([]);
+      setBlockedDates([]);
     };
   }, []);
 
@@ -199,6 +212,7 @@ const User = () => {
               mode="single"
               fromDate={new Date()}
               selected={date}
+              disabled={blockedDates.length ? blockedDates.map((date) => new Date(date.date)) : []}
               onSelect={handleSelect}
               className="rounded-md border h-fit align-items-center"
             />
@@ -232,21 +246,21 @@ const User = () => {
               <form
                 onSubmit={(e: FormEvent<HTMLFormElement>) => {
                   e.preventDefault();
-                  const { status, hour, minutes, serviceId, date } =
+                  const { status, hour, minutes, serviceId, chosenDate } =
                     appointmentData;
 
                   if (!status) return;
                   if (!hour) return;
                   if (!minutes) return;
                   if (!serviceId) return;
-                  if (!date) return;
-
+                  if (!chosenDate) return;
+                  
                   submitBookingAction({
                     status,
                     hour,
                     minutes,
                     serviceId,
-                    date,
+                    chosenDate,
                   });
                 }}
               >

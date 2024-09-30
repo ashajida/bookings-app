@@ -56,8 +56,8 @@ export const updateUser = async (id: number, data: Partial<User>) => {
     const response = await client.user.update({
       where: {
         id,
-      },
-      data: {
+      }, 
+      data: { 
         ...data,
       },
     });

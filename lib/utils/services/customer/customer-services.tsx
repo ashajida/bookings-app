@@ -2,19 +2,20 @@ import { PrismaClient, User } from '@prisma/client'
 
 const client = new PrismaClient();
 
-type UserData = {
+type CustomerData = {
+    firstName: string,
+    lastName: string,
     email: string,
-    phone: number,
-    name: string
+    phone: number
 }
 
-export const createCustomer = async (data: UserData) => {
+export const createCustomer = async ({firstName, lastName, email, phone}: CustomerData) => {
     try {
-        const createdAt = new Date();
-        const response = await client.user.create({ data: {
-            ...data, 
-            createdAt,
-            updatedAt: createdAt
+        const response = await client.customer.create({ data: {
+            firstName,
+            lastName,
+            email,
+            phone
         } });
         return response;
     } catch(e) {

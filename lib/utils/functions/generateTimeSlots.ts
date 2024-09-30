@@ -1,23 +1,44 @@
 import { Booking } from "@prisma/client";
 
+type GenerateTimeSlotsOptions = {
+  booked?: {[key: string]: any}[],
+  blockedDates?: {[key: string]: any}[]
+}
 export const generateTimeSlots = (
-  startTime: Date,
-  endTime: Date,
+  startTime: string,
+  endTime: string,
   interval = 60,
-  booked?: Booking[]
+  options: GenerateTimeSlotsOptions
 ) => {
+  const [openingHr, openingMins] = startTime.split(':').map(Number)
+  const [closingHr, closingMins] = endTime.split(':').map(Number);
+  const {booked, blockedDates} = options;
   const times = [] as string[];
-  let current = startTime;
 
-  console.log(booked, "here....");
+  const openingTime = new Date();
+  openingTime.setHours(openingHr, openingMins, 0, 0)
+
+  let current = new Date();
+  current.setHours(
+    openingTime.getHours(),
+    openingTime.getMinutes(),
+    0,
+    0
+  );
 
   // Set the start time (e.g., 9:00 AM)
   //current.setTime(startTime);
 
-  const end = endTime;
-  // Set the end time (e.g., 6:00 PM / 18:00)
-  //end.setHours(endTime);
-  //end.setMinutes(0);
+  const closingTime = new Date();
+  closingTime.setHours(closingHr, closingMins)
+  
+  const end = new Date();
+  end.setHours(
+    closingTime.getHours(),
+    closingTime.getMinutes(),
+    0,
+    0
+  );
 
   // Generate times in the specified interval
   while (current <= end) {
@@ -31,7 +52,6 @@ export const generateTimeSlots = (
     if (booked?.length) {
       for (const { date } of booked) {
         const _bookedDate = new Date(date);
-        console.log(_bookedDate.getHours(), "This hours");
         const bookedStart = new Date();
         bookedStart.setHours(
           _bookedDate.getHours(),
@@ -41,11 +61,12 @@ export const generateTimeSlots = (
         );
 
         // Calculate the end of the booked time slot based on its duration
-        const bookedEnd = new Date(_bookedDate);
-        bookedEnd.setMinutes(_bookedDate.getMinutes() + 50);
-
+        const bookedEnd = new Date(bookedStart);
+        bookedEnd.setMinutes(bookedStart.getMinutes() + 50);
+        console.log(current, bookedStart, 'booked date...12b') 
         // If the current time is within the booked range, mark it as booked
         if (current >= bookedStart && current < bookedEnd) {
+          console.log(true, 'booked start');
           isBooked = true;
           break;
         }

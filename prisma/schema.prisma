@@ -27,15 +27,9 @@ model User {
   password   String
   services   Service[]  // One-to-many relationship with services
   operationTime OperationTime?
-  blockedDates BlockedDate?
+  blockedDates BlockedDate[]
   categories Category[]
-}
-
-model Customer {
-  id         Int        @id @default(autoincrement())
-  name       String
-  email      String     @unique
-  bookings   Booking[]  // One-to-many relationship with bookings
+  customers Customer[]
 }
 
 model Service {
@@ -61,8 +55,8 @@ model Category {
 
 model OperationTime {
   id          Int          @id @default(autoincrement())
-  opening DateTime
-  closing DateTime
+  opening String
+  closing String
   user User @relation(fields: [userId], references: [id])
   userId String @unique
 }
@@ -71,16 +65,34 @@ model BlockedDate {
   id          Int          @id @default(autoincrement())
   date DateTime
   user User @relation(fields: [userId], references: [id])
-  userId String @unique
+  userId String 
 }
 
 
 model Booking {
   id             Int       @id @default(autoincrement())
-  customerId     Int?
   serviceId      Int
   date       DateTime   @default(now())
-  customer       Customer?   @relation(fields: [customerId], references: [id]) // Many-to-one relationship with Customer
   service        Service    @relation(fields: [serviceId], references: [id]) // Many-to-one relationship with Service
   status         String?
+  customerBookings CustomerBooking []
+}
+
+model Customer {
+  id             Int       @id @default(autoincrement())
+  firstName String
+  lastName String
+  email String @unique
+  phone Int @unique
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  customerBookings CustomerBooking []
+}
+
+model CustomerBooking {
+  id             Int       @id @default(autoincrement())
+  customerId Int
+  bookingId Int
+  customer Customer @relation(fields: [customerId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
 }

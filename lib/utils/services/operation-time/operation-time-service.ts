@@ -1,13 +1,20 @@
 import { validateRequest } from "@/lib/validateRequest";
-import { PrismaClient, OperationTime } from "@prisma/client";
+import { OperationTime, PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
 
 export const createOperationTime = async (data: OperationTime) => {
+  const { opening, closing, userId } = data;
   try {
     const response = await client.operationTime.create({
       data: {
-        ...data,
+        opening,
+        closing,
+        user: {
+          connect: {
+            id: userId
+          }
+        }
       },
     });
     return response;

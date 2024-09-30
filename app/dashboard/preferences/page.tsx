@@ -16,14 +16,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { operationTimeAction } from "@/lib/actions/operation-time-action";
+import { createBlockedDate } from "@/lib/utils/services/blocked-days/blocked-date-service";
+import { blockDateAction } from "@/lib/actions/block-date-action";
 
 const Preferences = () => {
   const [date, setDate] = useState<Date>();
 
   return (
     <div className="container">
-      <div className="grid">
-        <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-[500px] max-w-[90%] p-8">
+      <div className="">
+        <div className="">
           <form className="flex gap-3 flex-col" action={operationTimeAction}>
             <div className="flex flex-wrap gap-3">
               <OperationTimeHourMinute />
@@ -52,7 +54,8 @@ const Preferences = () => {
               />
             </PopoverContent>
           </Popover>
-          <form>
+          <form action={() => blockDateAction(date)}>
+            <input type="text" name="blocked-date" hidden />
             <button>Save</button>
           </form>
         </div>

@@ -1,12 +1,23 @@
+"use server";
+
 import { Booking, PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
 
 export const createBooking = async (data: Record<any, any>) => {
+
+  const {
+    serviceId,
+    status,
+    date,
+  } = data;
+
   try {
     const response = await client.booking.create({
       data: {
-        ...data,
+        status,
+        date: date,
+        service: { connect: { id: serviceId } }
       },
     });
     return response;
@@ -45,6 +56,23 @@ export const findAllBookings = async (username: string, chosenDate: string) => {
         service: {
           user: {
             name: username,
+          },
+        },
+      },
+    });
+    return response;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const findAllBookingsWithoutFilter = async (userId: string) => {
+  try {
+    const response = await client.booking.findMany({
+      where: {
+        service: {
+          user: {
+            name: userId,
           },
         },
       },

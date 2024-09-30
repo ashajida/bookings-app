@@ -1,13 +1,16 @@
+"use server";
+
 import { validateRequest } from "@/lib/validateRequest";
 import { BlockedDate, PrismaClient} from "@prisma/client";
 
 const client = new PrismaClient();
 
-export const createBlockedDate = async (data: BlockedDate) => {
+export const createBlockedDate = async ({ date, userId }: { date: Date, userId: string | number}) => {
   try {
     const response = await client.blockedDate.create({
       data: {
-        ...data,
+        date,
+        user: { connect: { id: userId } },
       },
     });
     return response;
@@ -29,15 +32,17 @@ export const findBlockedDate = async (id: number) => {
   }
 };
 
-export const findAllBlockedDates= async (username: string) => {
+export const findAllBlockedDates = async (username: string) => {
   try {
-    const response = await client.blockedDate.findFirst({
+    const response = await client.blockedDate.findMany({
       where: {
         user: {
           name: username,
         },
       },
     });
+    console.log('working.....')
+    console.log(response, 'response....');
     return response;
   } catch (e) {
     console.log(e);

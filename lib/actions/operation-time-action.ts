@@ -1,5 +1,6 @@
 "use server";
 
+import { createOperationTime } from "../utils/services/operation-time/operation-time-service";
 import { validateRequest } from "../validateRequest";
 
 export const operationTimeAction = async (formData: FormData) => {
@@ -26,9 +27,9 @@ export const operationTimeAction = async (formData: FormData) => {
     closing.setHours(parseInt(closingHour), parseInt(closingMinute), 0, 0);
 
     const data = {
-      opening,
-      closing,
-      user: { connect: { id: user.id } },
+      opening: `${openingHour}:${openingMinute}`,
+      closing: `${closingHour}:${closingMinute}`,
+      userId: user.id,
     };
 
     try {

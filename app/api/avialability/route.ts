@@ -1,4 +1,5 @@
 import { generateTimeSlots } from "@/lib/utils/functions/generateTimeSlots";
+import { findAllBlockedDates } from "@/lib/utils/services/blocked-days/blocked-date-service";
 import { findAllBookings } from "@/lib/utils/services/booking/booking-services";
 import { findAllOperationTimes } from "@/lib/utils/services/operation-time/operation-time-service";
 import { NextResponse } from "next/server";
@@ -17,20 +18,15 @@ export async function POST(request: Request) {
     if (!operationTimes) return;
 
     const { opening, closing } = operationTimes;
-
-    const _openDate = new Date(opening);
-    const _closingDate = new Date(closing);
-    //const _chosenDate = new Date(chosenDate);
-
     const bookedSlots = await findAllBookings(username, chosenDate);
 
-    console.log(new Date(chosenDate));
-
     const slots = generateTimeSlots(
-      _openDate,
-      _closingDate,
+      opening,
+      closing,
       15,
-      bookedSlots?.length ? bookedSlots : undefined
+      {
+        booked: bookedSlots
+      }
     );
     return NextResponse.json(
       {
