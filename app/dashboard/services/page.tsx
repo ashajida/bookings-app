@@ -49,7 +49,12 @@ const Service = () => {
   return (
     <div className="container mx-auto">
       <div className="">
-        <Button variant="outline" onClick={() => setNewServiceDialog(!newServiceDialog)}>Add Service</Button>
+        <Button
+          variant="outline"
+          onClick={() => setNewServiceDialog(!newServiceDialog)}
+        >
+          Add Service
+        </Button>
         {services && (
           <Table>
             <TableCaption>A list of your recent invoices.</TableCaption>
@@ -58,7 +63,7 @@ const Service = () => {
                 <TableHead className="w-[100px]">Name</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Duration</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

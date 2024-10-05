@@ -53,14 +53,20 @@ model Category {
   user User?  @relation(fields: [userId], references: [id])
 }
 
+
+
 model OperationTime {
-  id          Int          @id @default(autoincrement())
-  opening String
-  closing String
+  id        Int      @id @default(autoincrement())
   user User @relation(fields: [userId], references: [id])
   userId String @unique
+  Sunday    String?
+  Monday    String?
+  Tuesday   String?
+  Wednesday String?
+  Thursday  String?
+  Friday    String?
+  Saturday  String?
 }
-
 model BlockedDate {
   id          Int          @id @default(autoincrement())
   date DateTime

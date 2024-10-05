@@ -50,13 +50,14 @@ const User = () => {
   const [appointmentData, setAppointmentData] = useState<
     Partial<AppointmentData>
   >({});
-  const [blockedDates, setBlockedDates] = useState<{[key: string]: any}[]>([]);
+  const [blockedDates, setBlockedDates] = useState<{ [key: string]: any }[]>(
+    []
+  );
 
   const params = useParams();
   const username = params.username;
 
   const handleSelect = async (date?: Date) => {
-    
     if (!date) return;
 
     setAppointmentData({
@@ -127,16 +128,14 @@ const User = () => {
     };
 
     const getBlockedDates = async () => {
-      if (!username) return
+      if (!username) return;
       try {
         const response = await findAllBlockedDates(username.toString());
-        console.log(response, 'responses 12345');
-        if(!response) return;
+        console.log(response, "responses 12345");
+        if (!response) return;
         setBlockedDates(response);
-      } catch (error) {
-
-      }
-    }
+      } catch (error) {}
+    };
 
     const getCategories = async () => {
       // try {
@@ -163,7 +162,10 @@ const User = () => {
       <h1>Welcome to {username}</h1>
       <div className="w-[60%] mx-auto">
         {visibleFrame === "Service" && (
-          <div className="w-full p-10 flex flex-col gap-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Services</CardTitle>
+            </CardHeader>
             {/* <div>
             {categories.length > 0 &&
               categories.map((category) => {
@@ -174,14 +176,14 @@ const User = () => {
                 );
               })}
           </div> */}
-            {services.length > 0 &&
-              services.map(({ serviceName, price, duration, id }, index) => {
-                return (
-                  <>
+            <CardContent className="flex flex-col gap-3">
+              {services.length > 0 &&
+                services.map(({ serviceName, price, duration, id }, index) => {
+                  return (
                     <Accordion
                       data-category={serviceName}
                       data-id={id}
-                      key={id}
+                      key={index}
                       type="single"
                       collapsible
                       className="w-full"
@@ -201,38 +203,53 @@ const User = () => {
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
-                  </>
-                );
-              })}
-          </div>
-        )}
-        {visibleFrame === "Aviability" && (
-          <div className="w-full p-10 flex gap-6">
-            <Calendar
-              mode="single"
-              fromDate={new Date()}
-              selected={date}
-              disabled={blockedDates.length ? blockedDates.map((date) => new Date(date.date)) : []}
-              onSelect={handleSelect}
-              className="rounded-md border h-fit align-items-center"
-            />
-            <div className="flex flex-wrap gap-2 flex-1">
-              {slots &&
-                slots.length > 0 &&
-                slots.map((slot, index) => {
-                  return (
-                    <Button
-                      data-timeslot={slot}
-                      variant="outline"
-                      key={index}
-                      onClick={handleAviability}
-                    >
-                      {slot}
-                    </Button>
                   );
                 })}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {visibleFrame === "Aviability" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Choose Date</CardTitle>
+            </CardHeader>
+            <CardContent className="flex gap-6">
+              <div className="w-fit">
+                <Calendar
+                  mode="single"
+                  fromDate={new Date()}
+                  selected={date}
+                  disabled={
+                    blockedDates.length
+                      ? blockedDates.map((date) => new Date(date.date))
+                      : []
+                  }
+                  onSelect={handleSelect}
+                  className="rounded-md border h-fit align-items-center"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2 flex-1 m-h-[260px] overflow-y-auto">
+                {slots &&
+                  slots.length > 0 &&
+                  slots.map((slot, index) => {
+                    return (
+                      <Button
+                        data-timeslot={slot}
+                        variant="outline"
+                        key={index}
+                        onClick={handleAviability}
+                      >
+                        {slot}
+                      </Button>
+                    );
+                  })}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="ml-auto">Continue</Button>
+            </CardFooter>
+          </Card>
         )}
         {visibleFrame === "Confirmation" && (
           <Card>
@@ -254,7 +271,7 @@ const User = () => {
                   if (!minutes) return;
                   if (!serviceId) return;
                   if (!chosenDate) return;
-                  
+
                   submitBookingAction({
                     status,
                     hour,

@@ -25,45 +25,51 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Booking, Service } from "@prisma/client";
-import { findAllBookingsWithoutFilter } from "@/lib/utils/services/booking/booking-services";
+import { Service } from "@prisma/client";
 
 const Appointments = () => {
-  const [appointments, setAppointments] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [open, setOpen] = useState(false);
   const [newServiceDialog, setNewServiceDialog] = useState(false);
 
   useEffect(() => {
-    const getAppointments = async () => {
-      const response = await findAllBookingsWithoutFilter();
+    const getServices = async () => {
+      const response = await findAllServices();
       if (!response) return;
-      setAppointments(response);
+      setServices(response);
     };
 
-    getAppointments();
+    getServices();
 
     return () => {
-      setAppointments([]);
+      setServices([]);
     };
   }, []);
 
   return (
     <div className="container mx-auto">
-      {/* <div className="">
-        <Button variant="outline" onClick={() => setNewServiceDialog(!newServiceDialog)}>Add Service</Button>
-        {appointments && (
+      <div className="">
+        <Button
+          variant="outline"
+          onClick={() => setNewServiceDialog(!newServiceDialog)}
+        >
+          Add Appointment
+        </Button>
+        {services && (
           <Table>
             <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Name</TableHead>
+                <TableHead className="w-[100px]">Time</TableHead>
                 <TableHead>Price</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Service</TableHead>
                 <TableHead>Duration</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableHead className="text-right">States</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {appointments.map(({  }) => (
+              {services.map(({ serviceName, price, duration }) => (
                 <TableRow key={serviceName}>
                   <TableCell className="font-medium">{serviceName}</TableCell>
                   <TableCell>{price.toString()}</TableCell>
@@ -161,7 +167,7 @@ const Appointments = () => {
             </DialogContent>
           </Dialog>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };
