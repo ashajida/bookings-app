@@ -44,49 +44,29 @@ const Preferences = () => {
     | "saturday"
     | "sunday";
 
-  const submitOperationTime = async (formData: FormData) => {
-   
+  const handleOperationTimeSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+    const target = e.target as HTMLFormElement | null;
+    if (!target) return;
+
     const { user } = await validateRequest();
     if (!user) return;
 
-    const mondayOpeningHr = formData.get("monday-opening-hour") as string;
-    if (!mondayOpeningHr) return;
-    const mondayClosingHr = formData.get("monday-opening-hour") as string;
-    if (!mondayClosingHr) return;
-
-    const tuesdayOpeninHr = formData.get("monday-opening-hour") as string;
-    if (!mondayOpeningHr) return;
-
-    const closingHour = formData.get("closing-hour") as string;
-    if (!formData.get("closing-hour")) return;
-
-    const closingMinute = formData.get("closing-minute") as string;
-    if (!closingMinute) return;
-
-    const opening = new Date();
-    opening.setHours(parseInt(openingHour), parseInt(openingMinute), 0, 0);
-
-    const closing = new Date();
-    closing.setHours(parseInt(closingHour), parseInt(closingMinute), 0, 0);
-
-    const data = {
-      monday: `${openingHour}:${openingMinute}`,
-      tuesday: `${closingHour}:${closingMinute}`,
-      wednesday: user.id,
-      thursday,
-      friday,
-      saturday,
-      sunday
-    };
+    const formData = new FormData(target);
 
     try {
-      const response = await createOperationTime(data);
-      console.log(response);
-      return response;
+      const response = await fetch("/api/operation-time", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   return (
     <div className="container">
@@ -99,7 +79,7 @@ const Preferences = () => {
             <CardContent>
               <form
                 className="flex gap-3 flex-col"
-                action={submitOperationTime}
+                onSubmit={handleOperationTimeSubmit}
               >
                 {weekDays.map((day) => {
                   return (
