@@ -4,6 +4,8 @@ import { Input } from "../ui/input";
 import { Copy, PlusCircle } from "lucide-react";
 
 type Props = {
+  opening?: string,
+  closing?: string
   day:
     | "monday"
     | "tuesday"
@@ -14,7 +16,7 @@ type Props = {
     | "sunday";
 };
 
-const OperationHoursSelect = ({ day }: Props) => {
+const OperationHoursSelect = ({ day, opening, closing }: Props) => {
   const handleCopyTime = (e: React.MouseEvent<SVGSVGElement>) => {
     const target = e.target as SVGSVGElement | null;
     if (!target) return;
@@ -51,10 +53,10 @@ const OperationHoursSelect = ({ day }: Props) => {
         <Label className="mb-3 block capitalize">{day}</Label>
       </div>
       <div className="flex-1 gap-3">
-        <Input type="time" name={`${day}-opening`} />
+        <Input type="time" name={`${day}-opening`} value={opening} />
       </div>
       <div className="flex-1 gap-3">
-        <Input type="time" name={`${day}-closing`} />
+        <Input type="time" name={`${day}-closing`} value={closing} />
       </div>
       <div className="flex-1 gap-3">
         <PlusCircle className="pointer-cursor" />

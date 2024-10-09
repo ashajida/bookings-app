@@ -2,8 +2,10 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useEffect, useState } from "react";
-import OperationTimeHourMinute from "./OperationTimeHourMinute";
-import { createOperationTime } from "@/lib/utils/services/operation-time/operation-time-service";
+import {
+  createOperationTime,
+  findOperationTime,
+} from "@/lib/utils/services/operation-time/operation-time-service";
 import { validateRequest } from "@/lib/validateRequest";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -15,12 +17,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { operationTimeAction } from "@/lib/actions/operation-time-action";
-import { findAllBlockedDates } from "@/lib/utils/services/blocked-days/blocked-date-service";
 import { blockDateAction } from "@/lib/actions/block-date-action";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import OperationHoursSelect from "@/components/operation-hours-select/operation-hours-select";
+import { OperationTime } from "@prisma/client";
 
 const Preferences = () => {
   const [date, setDate] = useState<Date>();
@@ -68,6 +68,29 @@ const Preferences = () => {
     }
   };
 
+  const [operationTimes, setOperationTimes] = useState<Partial<OperationTime>>(
+    {}
+  );
+
+  useEffect(() => {
+    const getOperationTimes = async () => {
+      const { user } = await validateRequest();
+      if (!user) return;
+      try {
+        const response = await findOperationTime(user.id);
+        if (!response) return;
+
+        setOperationTimes(response);
+      } catch (error) {}
+    };
+
+    getOperationTimes();
+
+    return () => {
+      setOperationTimes({});
+    };
+  }, []);
+
   return (
     <div className="container">
       <div className="">
@@ -81,11 +104,23 @@ const Preferences = () => {
                 className="flex gap-3 flex-col"
                 onSubmit={handleOperationTimeSubmit}
               >
-                {weekDays.map((day) => {
+                {weekDays.map((day, index) => {
                   return (
-                    <>
-                      <OperationHoursSelect day={day as DayStrings} />
-                    </>
+                    <React.Fragment key={index}>
+                      <OperationHoursSelect
+                        day={day as DayStrings}
+                        opening={
+                          operationTimes
+                            ? operationTimes[day as DayStrings]?.split(",")[0]
+                            : ""
+                        }
+                        closing={
+                          operationTimes
+                            ? operationTimes[day as DayStrings]?.split(",")[1]
+                            : ""
+                        }
+                      />
+                    </React.Fragment>
                   );
                 })}
                 <Button variant="outline">Save</Button>
