@@ -41,7 +41,6 @@ export const findUserByEmail = async (email: string) => {
   }
 };
 
-
 export const findAllUsers = async () => {
   try {
     const response = await client.user.findMany();
@@ -51,13 +50,13 @@ export const findAllUsers = async () => {
   }
 };
 
-export const updateUser = async (id: number, data: Partial<User>) => {
+export const updateUser = async (id: string, data: Partial<User>) => {
   try {
     const response = await client.user.update({
       where: {
         id,
-      }, 
-      data: { 
+      },
+      data: {
         ...data,
       },
     });

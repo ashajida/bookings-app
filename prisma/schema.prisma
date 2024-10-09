@@ -26,8 +26,7 @@ model User {
   email      String     @unique
   password   String
   services   Service[]  // One-to-many relationship with services
-  operationTime OperationTime @relation(fields: [operationTimeId], references: [id]) 
-  operationTimeId Int
+  operationTime OperationTime?
   blockedDates BlockedDate[]
   categories Category[]
   customers Customer[]
@@ -58,8 +57,8 @@ model Category {
 
 model OperationTime {
   id        Int      @id @default(autoincrement())
-  user User @relation(fields: [userId], references: [id])
-  userId String @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
   sunday    String?
   monday    String?
   tuesday   String?

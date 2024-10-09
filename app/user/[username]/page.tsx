@@ -24,6 +24,11 @@ import {
 import { submitBookingAction } from "@/lib/actions/submit-booking-action";
 import { useParams } from "next/navigation";
 import { findAllBlockedDates } from "@/lib/utils/services/blocked-days/blocked-date-service";
+import {
+  findAllOperationTimes,
+  findDaysOff,
+  findOperationTime,
+} from "@/lib/utils/services/operation-time/operation-time-service";
 
 type BookAppointmentResponse = {
   success: boolean;
@@ -53,6 +58,8 @@ const User = () => {
   const [blockedDates, setBlockedDates] = useState<{ [key: string]: any }[]>(
     []
   );
+
+  const [blockedDaysArray, setBlockedDaysArray] = useState<number[]>([]);
 
   const params = useParams();
   const username = params.username;
@@ -137,25 +144,25 @@ const User = () => {
       } catch (error) {}
     };
 
-    const getCategories = async () => {
-      // try {
-      //   const response = await findAllCategories();
-      //   if (response) {
-      //     setCategories(response);
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
+    const getBlockedDays = async () => {
+      if (!username) return;
+      try {
+        const response = await findDaysOff(username.toString());
+        console.log(response, "off work days.....");
+
+        if (!response) return;
+        setBlockedDaysArray(response);
+      } catch (error) {}
     };
 
-    //getCategories();
     getServices();
     getBlockedDates();
+    getBlockedDays();
     return () => {
       setServices([]);
       setBlockedDates([]);
     };
-  }, []);
+  }, [username]);
 
   return (
     <div className="container mx-auto px-4">
@@ -220,11 +227,12 @@ const User = () => {
                   mode="single"
                   fromDate={new Date()}
                   selected={date}
-                  disabled={
-                    blockedDates.length
+                  disabled={{
+                    dayOfWeek: blockedDaysArray,
+                    ...(blockedDates.length
                       ? blockedDates.map((date) => new Date(date.date))
-                      : []
-                  }
+                      : []),
+                  }}
                   onSelect={handleSelect}
                   className="rounded-md border h-fit align-items-center"
                 />

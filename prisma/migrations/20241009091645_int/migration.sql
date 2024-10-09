@@ -39,9 +39,14 @@ CREATE TABLE "Category" (
 -- CreateTable
 CREATE TABLE "OperationTime" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "opening" DATETIME NOT NULL,
-    "closing" DATETIME NOT NULL,
     "userId" TEXT NOT NULL,
+    "sunday" TEXT,
+    "monday" TEXT,
+    "tuesday" TEXT,
+    "wednesday" TEXT,
+    "thursday" TEXT,
+    "friday" TEXT,
+    "saturday" TEXT,
     CONSTRAINT "OperationTime_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -62,6 +67,26 @@ CREATE TABLE "Booking" (
     CONSTRAINT "Booking_serviceId_fkey" FOREIGN KEY ("serviceId") REFERENCES "Service" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "Customer" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "phone" INTEGER NOT NULL,
+    "userId" TEXT NOT NULL,
+    CONSTRAINT "Customer_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "CustomerBooking" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "customerId" INTEGER NOT NULL,
+    "bookingId" INTEGER NOT NULL,
+    CONSTRAINT "CustomerBooking_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "CustomerBooking_bookingId_fkey" FOREIGN KEY ("bookingId") REFERENCES "Booking" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
 
@@ -72,4 +97,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "OperationTime_userId_key" ON "OperationTime"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "BlockedDate_userId_key" ON "BlockedDate"("userId");
+CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Customer_phone_key" ON "Customer"("phone");

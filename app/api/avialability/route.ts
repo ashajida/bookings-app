@@ -12,22 +12,42 @@ export async function POST(request: Request) {
       username: string;
       chosenDate: string;
     };
-    console.log(data);
+
+    const _chosenDate = new Date(chosenDate);
 
     const operationTimes = await findAllOperationTimes(username);
     if (!operationTimes) return;
 
-    const { opening, closing } = operationTimes;
+    let _operationTime: string[] = [];
+
+    const { sunday, monday, tuesday, wednesday, thursday, friday, saturday } =
+      operationTimes;
+
+    const days = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+
+    for (const [key, value] of Object.entries(operationTimes)) {
+      if (key === days[_chosenDate.getDay()]) {
+        console.log(days[_chosenDate.getDay()]);
+        if (!value) return;
+        _operationTime = value.toString().split(",");
+      }
+    }
+
+    console.log(_operationTime);
+
     const bookedSlots = await findAllBookings(username, chosenDate);
 
-    const slots = generateTimeSlots(
-      opening,
-      closing,
-      15,
-      {
-        booked: bookedSlots
-      }
-    );
+    const slots = generateTimeSlots(_operationTime[0], _operationTime[1], 15, {
+      booked: bookedSlots,
+    });
     return NextResponse.json(
       {
         success: true,

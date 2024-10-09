@@ -1,3 +1,4 @@
+"use server";
 import { validateRequest } from "@/lib/validateRequest";
 import { PrismaClient } from "@prisma/client";
 
@@ -11,18 +12,21 @@ type OperationTime = {
   thursday?: string;
   friday?: string;
   saturday?: string;
-}
+};
 
-export const createOperationTime = async (data: OperationTime, userId: string) => {
+export const createOperationTime = async (
+  data: OperationTime,
+  userId: string
+) => {
   try {
     const response = await client.operationTime.create({
       data: {
         ...data,
         user: {
           connect: {
-            id: userId
-          }
-        }
+            id: userId,
+          },
+        },
       },
     });
     return response;
@@ -31,11 +35,11 @@ export const createOperationTime = async (data: OperationTime, userId: string) =
   }
 };
 
-export const findOperationTime = async (id: number) => {
+export const findOperationTime = async (userId: string) => {
   try {
     const response = await client.operationTime.findUnique({
       where: {
-        id,
+        userId,
       },
     });
     return response;
@@ -59,14 +63,32 @@ export const findAllOperationTimes = async (username: string) => {
   }
 };
 
+export const findDaysOff = async (username: string) => {
+  const days = ['sunday', 'monday', 'teusday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  try {
+    const response = await findAllOperationTimes(username);
+    if(!response) return;
+
+    const daysOff = days.reduce((prev, current, index) => {
+      if (response[current] === null) {
+        prev.push(index); 
+      }
+      return prev; 
+    }, []);
+
+    return daysOff;
+
+  } catch(error) {}
+}
+
 export const updateOperationTime = async (
-  id: number,
-  data: Partial<OperationTime>
+  data: Partial<OperationTime>,
+  userId: string
 ) => {
   try {
     const response = await client.operationTime.update({
       where: {
-        id,
+        userId,
       },
       data: {
         ...data,

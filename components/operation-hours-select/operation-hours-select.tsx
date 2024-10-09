@@ -20,10 +20,10 @@ const OperationHoursSelect = ({ day }: Props) => {
     if (!target) return;
 
     const mondayOpeningHr = document.querySelector<HTMLInputElement>(
-      'input[name="monday-opening-time"]'
+      'input[name="monday-opening"]'
     );
     const mondayClosingHr = document.querySelector<HTMLInputElement>(
-      'input[name="monday-closing-time"]'
+      'input[name="monday-closing"]'
     );
 
     console.log(mondayClosingHr);
@@ -31,10 +31,10 @@ const OperationHoursSelect = ({ day }: Props) => {
     if (!mondayOpeningHr || !mondayClosingHr) return;
 
     const openingTimeInputs = document.querySelectorAll<HTMLInputElement>(
-      'input[name$="opening-time"]'
+      'input[name$="opening"]'
     );
     const closingTimeInputs = document.querySelectorAll<HTMLInputElement>(
-      'input[name$="closing-time"]'
+      'input[name$="closing"]'
     );
 
     openingTimeInputs.forEach((input) => {
