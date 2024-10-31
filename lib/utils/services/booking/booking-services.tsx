@@ -82,3 +82,17 @@ export const findAllBookingsWithoutFilter = async (userId: string) => {
     console.log(e);
   }
 };
+
+export const findAllBookingByMonth = async(userId: string, date: Date) => {
+  try {
+    const response = await client.booking.findMany({
+      where: {
+        data: {
+          
+        }
+      }
+    })
+  } catch (error) {
+    
+  }
+}

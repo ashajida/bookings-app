@@ -78,8 +78,9 @@ const Preferences = () => {
       if (!user) return;
       try {
         const response = await findOperationTime(user.id);
-        if (!response) return;
+        console.log(response, 'response')
 
+        if (!response) return;
         setOperationTimes(response);
       } catch (error) {}
     };
@@ -95,7 +96,7 @@ const Preferences = () => {
     <div className="container">
       <div className="">
         <div className="flex gap-4">
-          <Card className="w-[350px]">
+          <Card className="w-[350px] min-w-fit">
             <CardHeader>
               <CardTitle>Operation Days & Time</CardTitle>
             </CardHeader>

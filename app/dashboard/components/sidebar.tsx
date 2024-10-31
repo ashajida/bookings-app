@@ -16,9 +16,9 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "../ui/card";
-import { Button } from "../ui/button";
-import Signout from "../signout/signout";
+} from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import Signout from "../../../components/signout/signout";
 
 const Sidebar = () => {
   return (
@@ -43,6 +43,12 @@ const Sidebar = () => {
               Dashboard
             </Link>
             <Link
+              href="/dashboard/calendar"
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+            >
+              Calendar
+            </Link>
+            <Link
               href="/dashboard/appointments"
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
             >
@@ -60,7 +66,9 @@ const Sidebar = () => {
             >
               Preferences
             </Link>
-            <Signout />
+            <div  className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary">
+              <Signout />
+            </div>
           </nav>
         </div>
       </div>
