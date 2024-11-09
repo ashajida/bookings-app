@@ -5,19 +5,14 @@ import { Booking, PrismaClient } from "@prisma/client";
 const client = new PrismaClient();
 
 export const createBooking = async (data: Record<any, any>) => {
-
-  const {
-    serviceId,
-    status,
-    date,
-  } = data;
+  const { serviceId, status, date } = data;
 
   try {
     const response = await client.booking.create({
       data: {
         status,
         date: date,
-        service: { connect: { id: serviceId } }
+        service: { connect: { id: serviceId } },
       },
     });
     return response;
@@ -26,7 +21,10 @@ export const createBooking = async (data: Record<any, any>) => {
   }
 };
 
-export const findAllBookings = async (username: string, chosenDate: string) => {
+export const findAllBookings = async (
+  username: string,
+  chosenDate: Date = new Date()
+) => {
   const date = new Date(chosenDate);
 
   const startOfDay = new Date(
@@ -49,10 +47,10 @@ export const findAllBookings = async (username: string, chosenDate: string) => {
   try {
     const response = await client.booking.findMany({
       where: {
-        date: {
-          gte: startOfDay.toISOString(), // Start of the day in UTC
-          lte: endOfDay.toISOString(),
-        },
+        // date: {
+        //   gte: startOfDay.toISOString(), // Start of the day in UTC
+        //   lte: endOfDay.toISOString(),
+        // },
         service: {
           user: {
             name: username,
@@ -81,4 +79,14 @@ export const findAllBookingsWithoutFilter = async (userId: string) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+export const findAllBookingByMonth = async (userId: string, date: Date) => {
+  try {
+    const response = await client.booking.findMany({
+      where: {
+        data: {},
+      },
+    });
+  } catch (error) {}
 };

@@ -1,4 +1,5 @@
-import Sidebar from "@/components/sidebar/sidebar";
+import Sidebar from "@/app/dashboard/components/sidebar";
+import { AuthContext } from "@/context/context";
 import { validateRequest } from "@/lib/validateRequest";
 import { redirect } from "next/navigation";
 

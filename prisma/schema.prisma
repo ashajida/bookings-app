@@ -63,7 +63,7 @@ model OperationTime {
   monday    String?
   tuesday   String?
   wednesday String?
-  thursday  String?
+  thursday  String? 
   friday    String?
   saturday  String?
 }

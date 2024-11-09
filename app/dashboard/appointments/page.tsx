@@ -26,23 +26,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Service } from "@prisma/client";
+import { validateRequest } from "@/lib/validateRequest";
+import { findAllBookings } from "@/lib/utils/services/booking/booking-services";
 
 const Appointments = () => {
-  const [services, setServices] = useState<Service[]>([]);
+  const [bookings, setBookings] = useState<[]>([]);
   const [open, setOpen] = useState(false);
   const [newServiceDialog, setNewServiceDialog] = useState(false);
 
   useEffect(() => {
-    const getServices = async () => {
-      const response = await findAllServices();
+    const getBookings = async () => {
+      const { user } = await validateRequest();
+      if (!user) return;
+
+      const response = await findAllBookings(user.name);
       if (!response) return;
-      setServices(response);
+
+      setBookings(response);
     };
 
-    getServices();
+    getBookings();
 
     return () => {
-      setServices([]);
+      setBookings([]);
     };
   }, []);
 
@@ -55,7 +61,7 @@ const Appointments = () => {
         >
           Add Appointment
         </Button>
-        {services && (
+        {bookings && (
           <Table>
             <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
@@ -69,11 +75,11 @@ const Appointments = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services.map(({ serviceName, price, duration }) => (
-                <TableRow key={serviceName}>
-                  <TableCell className="font-medium">{serviceName}</TableCell>
-                  <TableCell>{price.toString()}</TableCell>
-                  <TableCell>{duration}</TableCell>
+              {bookings.map((booking, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium">{1}</TableCell>
+                  <TableCell>{}</TableCell>
+                  <TableCell>{}</TableCell>
                   <TableCell className="flex justify-end gap-2">
                     <Button onClick={() => setOpen(!open)}>Edit</Button>
                     <form>
