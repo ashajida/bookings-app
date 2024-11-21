@@ -56,6 +56,7 @@ const CalendarPage = () => {
   ];
 
   useEffect(() => {
+
     const getDisplayedDays = (month) => {
       const firstDayOfMonth = new Date(
         month.getFullYear(),
@@ -96,11 +97,17 @@ const CalendarPage = () => {
       if (!response) return;
 
       setBookings(response);
+
+      return response;
     };
 
     // When the month changes, recalculate the displayed days
     getDisplayedDays(month);
-    getBookings();
+    getBookings().then((data) => {
+      console.log(data, 'testing...');
+      handleSelected(new Date(), data);
+    } );
+
 
     return () => {
       setBookings([]);
@@ -125,14 +132,24 @@ const CalendarPage = () => {
     return result;
   };
 
-  const getBookingsInWeek = (weekStart: Date, weekEnd: Date) => {
-    const bookingArr = bookings.filter((booking) => {
-      if (booking.date >= weekStart && booking.date <= weekEnd) return booking;
-    });
+  const getBookingsInWeek = (weekStart: Date, weekEnd: Date, data?: []) => {
+    let bookingArr;
+
+    if(!data?.length) {
+      bookingArr = bookings.filter((booking) => {
+        if (booking.date >= weekStart && booking.date <= weekEnd) return booking;
+      });
+    } else {
+      bookingArr = data.filter((booking) => {
+        if (booking.date >= weekStart && booking.date <= weekEnd) return booking;
+      });
+    }
+
+    console.log(bookingArr, 'bookings....')
     setBookingsWeekView(bookingArr);
   };
 
-  const handleSelected = (date?: Date) => {
+  const handleSelected = (date?: Date, data?:[]) => {
     if (!date) return;
 
     const weekStart = startOfWeek(date, { weekStartsOn: 0 });
@@ -144,7 +161,7 @@ const CalendarPage = () => {
 
     setDaysInWeek(days);
 
-    getBookingsInWeek(days[0], days[days.length - 1]);
+    getBookingsInWeek(days[0], days[days.length - 1], data);
   };
 
   const createWeekViewBlock = (day: Date) => {
@@ -173,7 +190,7 @@ const CalendarPage = () => {
     return (
       bookingObj && (
         <div
-          className="bg-blue-200 gap-1 flex flex-col rounded-sm p-1 mb-1 cursor-pointer"
+          className="bg-blue-200 gap-1 flex flex-col rounded-sm p-1 mb-1 cursor-pointer absolute w-full"
           style={{
             height: `${dynamicHeight("120")}px`,
             top: `${calc ? dynamicHeight(calc.toString()) : 0}px`,
@@ -225,7 +242,7 @@ const CalendarPage = () => {
       <Calendar
         mode="single"
         initialFocus
-        onSelect={handleSelected}
+        onSelect={(date?: Date) => handleSelected(date)}
         selected={selectedDate}
       />
       {currentView === "month" && (
@@ -270,7 +287,7 @@ const CalendarPage = () => {
         <div className="relative w-full">
           <table className="table-fixed border-collapse w-full">
             <tr>
-              <th className="h-[40px]  max-w-[150px] w-[150px] min-w-[150px] border"></th>
+              <th className="test h-[40px]  max-w-[150px] w-[150px] min-w-[150px] border"></th>
               {daysInWeek.length &&
                 daysInWeek.map((day, index) => {
                   return (
