@@ -1,29 +1,23 @@
+"use server";
+
 import { generateId } from "lucia";
 import { createUser } from "../utils/services/user/user-services";
 import { hash } from "argon2";
 import { lucia } from "../auth";
 //import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { BaseResponse } from "../utils/types";
 
-export const signup = async (formData: FormData) => {
-  "use server";
+type SignupData = {
+  name: string;
+  password: string;
+  email: string;
+  phone: string;
+};
 
-  const password = formData.get("password")?.toString();
-  if (!password) return;
-
-  const passwordHash = await hash(password);
-
-  const name = formData.get("name")?.toString();
-  if (!name) return;
-
-  const phone = formData.get("phone")?.toString();
-  if (!phone) return;
-
-  const email = formData.get("email")?.toString();
-  if (!email) return;
-
+export const signup = async ({ name, password, email, phone }: SignupData) => {
   const id = generateId(15);
-
+  const passwordHash = await hash(password);
   const data = {
     id: id,
     name,
@@ -34,7 +28,13 @@ export const signup = async (formData: FormData) => {
 
   try {
     const response = await createUser(data);
-    console.log(response);
+
+    if (!response) {
+      return {
+        success: false,
+        message: "An error has occured.",
+      } as BaseResponse;
+    }
 
     const session = await lucia.createSession(id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
@@ -45,8 +45,17 @@ export const signup = async (formData: FormData) => {
       sessionCookie.attributes
     );
 
+    return {
+      success: true,
+      message: "User created.",
+      data: response,
+    } as BaseResponse<typeof response>;
+
     //return redirect("/");
   } catch (error) {
-    console.log(error);
+    return {
+      success: false,
+      message: "An error has occured",
+    } as BaseResponse;
   }
 };
