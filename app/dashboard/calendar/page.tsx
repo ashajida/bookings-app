@@ -17,6 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
 
 let clock: string[] = [];
 
@@ -56,7 +63,6 @@ const CalendarPage = () => {
   ];
 
   useEffect(() => {
-
     const getDisplayedDays = (month) => {
       const firstDayOfMonth = new Date(
         month.getFullYear(),
@@ -103,11 +109,11 @@ const CalendarPage = () => {
 
     // When the month changes, recalculate the displayed days
     getDisplayedDays(month);
-    getBookings().then((data) => {
-      console.log(data, 'testing...');
-      handleSelected(new Date(), data);
-    } );
 
+    getBookings().then((data) => {
+      console.log(data, "testing...");
+      handleSelected(new Date(), data);
+    });
 
     return () => {
       setBookings([]);
@@ -135,21 +141,23 @@ const CalendarPage = () => {
   const getBookingsInWeek = (weekStart: Date, weekEnd: Date, data?: []) => {
     let bookingArr;
 
-    if(!data?.length) {
+    if (!data?.length) {
       bookingArr = bookings.filter((booking) => {
-        if (booking.date >= weekStart && booking.date <= weekEnd) return booking;
+        if (booking.date >= weekStart && booking.date <= weekEnd)
+          return booking;
       });
     } else {
       bookingArr = data.filter((booking) => {
-        if (booking.date >= weekStart && booking.date <= weekEnd) return booking;
+        if (booking.date >= weekStart && booking.date <= weekEnd)
+          return booking;
       });
     }
 
-    console.log(bookingArr, 'bookings....')
+    console.log(bookingArr, "bookings....");
     setBookingsWeekView(bookingArr);
   };
 
-  const handleSelected = (date?: Date, data?:[]) => {
+  const handleSelected = (date?: Date, data?: []) => {
     if (!date) return;
 
     const weekStart = startOfWeek(date, { weekStartsOn: 0 });
@@ -162,6 +170,8 @@ const CalendarPage = () => {
     setDaysInWeek(days);
 
     getBookingsInWeek(days[0], days[days.length - 1], data);
+
+    setSelectedDate(date);
   };
 
   const createWeekViewBlock = (day: Date) => {
@@ -221,30 +231,54 @@ const CalendarPage = () => {
 
   return (
     <div>
-      <div>
-        <label>
-          Month
-          <input
-            type="checkbox"
-            checked={currentView === "month" ? true : false}
-            onChange={() => setCurrentView("month")}
-          ></input>
-        </label>
-        <label>
-          Week
-          <input
-            type="checkbox"
-            checked={currentView === "week" ? true : false}
-            onChange={() => setCurrentView("week")}
-          ></input>
-        </label>
+      <div className="flex justify-between mb-6">
+        <div className={cn("grid gap-2")}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="date"
+                variant={"outline"}
+                className={cn(
+                  "w-[300px] justify-start text-left font-normal",
+                  !selectedDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon />
+                {selectedDate?.toDateString()}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                initialFocus
+                mode="single"
+                onSelect={(date?: Date) => handleSelected(date)}
+                selected={selectedDate}
+                defaultMonth={selectedDate}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="flex gap-2">
+          <label>
+            <input
+              type="checkbox"
+              checked={currentView === "month" ? true : false}
+              onChange={() => setCurrentView("month")}
+              className="mr-1"
+            ></input>
+            Month
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={currentView === "week" ? true : false}
+              onChange={() => setCurrentView("week")}
+              className="mr-1"
+            ></input>
+            Week
+          </label>
+        </div>
       </div>
-      <Calendar
-        mode="single"
-        initialFocus
-        onSelect={(date?: Date) => handleSelected(date)}
-        selected={selectedDate}
-      />
       {currentView === "month" && (
         <div className="w-100 relative">
           <div>
@@ -256,7 +290,7 @@ const CalendarPage = () => {
                     isNotCurrentMonth(day) ? "text-muted" : ""
                   }`}
                 >
-                  <span className="absolute top-1 right-2 mb-6">
+                  <span className="absolute top-1 right-2 mb-6 capitalize">
                     {day.getDate()}
                   </span>
                   {isBooked(day).length
@@ -286,43 +320,46 @@ const CalendarPage = () => {
       {currentView === "week" && (
         <div className="relative w-full">
           <table className="table-fixed border-collapse w-full">
-            <tr>
-              <th className="test h-[40px]  max-w-[150px] w-[150px] min-w-[150px] border"></th>
-              {daysInWeek.length &&
-                daysInWeek.map((day, index) => {
+            <thead>
+              <tr>
+                <th className="test h-[40px]  max-w-[150px] w-[150px] min-w-[150px] border"></th>
+                {daysInWeek?.map((day, index) => {
                   return (
                     <th
                       key={index}
                       className="min-h-[40px] h-[40px] w-[150px]  max-w-[150px] min-w-[150px] border"
                     >
-                      <span className="block text-sm">
+                      <span className="block text-sm capitalize">
                         {weekDays[day.getDay()]} {day.getDate()}
                       </span>
                     </th>
                   );
                 })}
-            </tr>
-            {clock.map((time, index) => {
-              return (
-                <tr key={index}>
-                  <td
-                    data-time={time}
-                    className="h-[24px] max-w-[150px] w-[150px] min-w-[150px] border"
-                  >
-                    <span className="block text-sm">{time}</span>
-                  </td>
-                  <td className="w-full border" colSpan={7}></td>
-                </tr>
-              );
-            })}
+              </tr>
+            </thead>
+            <tbody>
+              {clock.map((time, index) => {
+                return (
+                  <tr key={index}>
+                    <td
+                      data-time={time}
+                      className="h-[24px] max-w-[150px] w-[150px] min-w-[150px] border px-4"
+                    >
+                      <span className="block text-sm">{time}</span>
+                    </td>
+                    <td className="w-full border" colSpan={7}></td>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
           <table className="absolute left-0 top-[40px] h-full w-full table-fixed border-collapse">
-            <tr>
-              <td className="max-w-[150px] w-[150px]  min-w-[150px] border">
-                &nbsp;
-              </td>
-              {daysInWeek.length &&
-                daysInWeek.map((day, index) => {
+            <tbody>
+              <tr>
+                <td className="max-w-[150px] w-[150px]  min-w-[150px] border">
+                  &nbsp;
+                </td>
+                {daysInWeek?.map((day, index) => {
                   return (
                     <td
                       // rowSpan={24}
@@ -333,7 +370,8 @@ const CalendarPage = () => {
                     </td>
                   );
                 })}
-            </tr>
+              </tr>
+            </tbody>
           </table>
         </div>
       )}

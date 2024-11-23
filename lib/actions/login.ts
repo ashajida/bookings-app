@@ -1,35 +1,34 @@
-import {
-  findUserByEmail,
-} from "../utils/services/user/user-services";
+"use server";
+import { findUserByEmail } from "../utils/services/user/user-services";
 import { verify } from "argon2";
 import { lucia } from "../auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { BaseResponse } from "../utils/types";
 
-export const login = async (formData: FormData) => {
-  "use server";
+type LoginData = {
+  email: string;
+  password: string;
+};
 
-  const password = formData.get("password")?.toString();
-  if (!password) return;
-
-  const email = formData.get("email")?.toString();
-  if (!email) return;
-
+export const login = async ({ email, password }: LoginData) => {
   try {
     const existingUser = await findUserByEmail(email);
 
     if (!existingUser) {
-      throw new Error("Incorrect Email");
-      return;
+      return {
+        success: false,
+        message: "User not found",
+      } as BaseResponse;
     }
 
     const verifyPassword = await verify(existingUser.password, password);
 
-    console.log(verifyPassword)
-
     if (!verifyPassword) {
-      throw new Error("Incorrect Password");
-      return;
+      return {
+        success: false,
+        message: "Incorrect Password",
+      } as BaseResponse;
     }
 
     const session = await lucia.createSession(existingUser.id, {});
