@@ -16,7 +16,7 @@ type Props = {
 };
 
 const EditServiceForm = ({
-  serviceData: { price, serviceName, description, duration, serviceId },
+  serviceData: { price, serviceName, description, duration, serviceId }
 }: Props) => {
   const [formState, action, isPending] = useFormState(
     handleEditService,
@@ -31,7 +31,7 @@ const EditServiceForm = ({
         <span className="text-red-500">{formState?.formError}</span>
       )}
       <div>
-        <input type="text" name="service-id" value={serviceId} hidden/>
+      <input type="text" name="service-id" value={serviceId} hidden/>
         <Input
           name="service-name"
           type="text"

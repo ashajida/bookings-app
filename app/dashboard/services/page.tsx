@@ -29,14 +29,12 @@ import { Service } from "@prisma/client";
 import AddServiceForm from "./AddServiceForm";
 import { z } from "zod";
 import EditServiceForm from "./EditServiceForm";
-import { editServiceAction } from "@/lib/actions/editServiceAction";
 
 type ServicesData = {
   price: string;
-  description?: string | null;
+  description?: string;
   duration: string;
   serviceName: string;
-  serviceId: number
 };
 
 const Service = () => {
@@ -80,7 +78,7 @@ const Service = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services.map(({ serviceName, price, duration, description, id }) => (
+            {services.map(({ serviceName, price, duration, description, id }) => (
                 <TableRow key={serviceName}>
                   <TableCell className="font-medium">{serviceName}</TableCell>
                   <TableCell>{price.toString()}</TableCell>
@@ -194,8 +192,6 @@ export const handleEditService = async (
     description: formData.get("description")?.toString() || "",
     serviceId: formData.get('service-id')?.toString() || '',
   };
-
-  console.log(formData.get('serviceId')?.toString(), 'serviceID.....')
   const result = serviceSchema.safeParse(serviceData);
 
   if (!result.success) {
