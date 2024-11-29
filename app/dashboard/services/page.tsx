@@ -29,19 +29,21 @@ import { Service } from "@prisma/client";
 import AddServiceForm from "./AddServiceForm";
 import { z } from "zod";
 import EditServiceForm from "./EditServiceForm";
+import { editServiceAction } from "@/lib/actions/editServiceAction";
 
 type ServicesData = {
   price: string;
-  description?: string;
+  description?: string | null;
   duration: string;
   serviceName: string;
+  serviceId: number
 };
 
 const Service = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [open, setOpen] = useState(false);
   const [newServiceDialog, setNewServiceDialog] = useState(false);
-  const [serviceData, setServiceData] = useState<ServicesData>();
+  const [serviceData, setServiceData] = useState<ServicesData>({});
 
   useEffect(() => {
     const getServices = async () => {
@@ -78,7 +80,7 @@ const Service = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {services.map(({ serviceName, price, duration, description }) => (
+              {services.map(({ serviceName, price, duration, description, id }) => (
                 <TableRow key={serviceName}>
                   <TableCell className="font-medium">{serviceName}</TableCell>
                   <TableCell>{price.toString()}</TableCell>
@@ -89,9 +91,10 @@ const Service = () => {
                         setOpen(!open);
                         setServiceData({
                           serviceName,
-                          price,
+                          price: String(price),
                           duration,
                           description,
+                          serviceId: id
                         });
                       }}
                     >
@@ -187,9 +190,12 @@ export const handleEditService = async (
   const serviceData = {
     serviceName: formData.get("service-name")?.toString() || "",
     duration: formData.get("duration")?.toString() || "",
-    price: formData.get("price")?.toString() || "",
+    price: formData.get("price")?.toString() || '',
     description: formData.get("description")?.toString() || "",
+    serviceId: formData.get('service-id')?.toString() || '',
   };
+
+  console.log(formData.get('serviceId')?.toString(), 'serviceID.....')
   const result = serviceSchema.safeParse(serviceData);
 
   if (!result.success) {
@@ -201,7 +207,7 @@ export const handleEditService = async (
     };
   }
 
-  const response = await createServiceAction(serviceData);
+  const response = await editServiceAction(serviceData);
 
   if (!response?.success) {
     return {

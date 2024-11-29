@@ -2,6 +2,7 @@
 
 import { validateRequest } from "@/lib/validateRequest";
 import { PrismaClient, Service } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const client = new PrismaClient();
 
@@ -46,14 +47,23 @@ export const findAllServices = async (username: string) => {
   }
 };
 
-export const updateService = async (id: number, data: Partial<Service>) => {
+type UpdateServiceData = {
+  price: number;
+  duration: string;
+  serviceName: string;
+  description?: string | null;
+  id: number;
+}
+
+export const updateService = async (data: UpdateServiceData) => {
   try {
     const response = await client.service.update({
       where: {
-        id,
+        id: data.id,
       },
       data: {
         ...data,
+        price: new Decimal(data.price)
       },
     });
     return response;

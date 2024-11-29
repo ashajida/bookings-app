@@ -8,14 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 type Props = {
   serviceData: {
     price: string;
-    description?: string;
+    description?: string | null;
     duration: string;
     serviceName: string;
+    serviceId: number
   };
 };
 
 const EditServiceForm = ({
-  serviceData: { price, serviceName, description, duration },
+  serviceData: { price, serviceName, description, duration, serviceId },
 }: Props) => {
   const [formState, action, isPending] = useFormState(
     handleEditService,
@@ -30,10 +31,11 @@ const EditServiceForm = ({
         <span className="text-red-500">{formState?.formError}</span>
       )}
       <div>
+        <input type="text" name="service-id" value={serviceId} hidden/>
         <Input
           name="service-name"
           type="text"
-          placeholder="Service Name"
+          placeholder="Service Name.."
           className="w-full"
           defaultValue={serviceName}
         />

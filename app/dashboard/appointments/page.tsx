@@ -28,6 +28,7 @@ import {
 import { Service } from "@prisma/client";
 import { validateRequest } from "@/lib/validateRequest";
 import { findAllBookings } from "@/lib/utils/services/booking/booking-services";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Appointments = () => {
   const [bookings, setBookings] = useState<[]>([]);
@@ -107,29 +108,60 @@ const Appointments = () => {
                 action={createServiceAction}
               >
                 <Input
-                  name="service-name"
+                  name="customer-name"
                   type="text"
-                  placeholder="Service Name"
+                  placeholder="Customer Name"
                   className="w-full"
                 />
                 <Input
-                  name="description"
-                  type="text"
-                  placeholder="Description"
+                  name="customer-phone"
+                  type="tel"
+                  placeholder="Phone"
                   className="w-full"
                 />
                 <Input
-                  name="price"
-                  type="text"
-                  placeholder="Price"
+                  name="customer-email"
+                  type="email"
+                  placeholder="Email"
                   className="w-full"
                 />
+                <hr />
                 <Input
-                  name="duration"
+                  name="date"
                   type="text"
-                  placeholder="Duration"
+                  placeholder="Dur"
                   className="w-full"
                 />
+                <Select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Fruits</SelectLabel>
+                      <SelectItem value="apple">Apple</SelectItem>
+                      <SelectItem value="banana">Banana</SelectItem>
+                      <SelectItem value="blueberry">Blueberry</SelectItem>
+                      <SelectItem value="grapes">Grapes</SelectItem>
+                      <SelectItem value="pineapple">Pineapple</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <Select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Time</SelectLabel>
+                      <SelectItem value="apple">Apple</SelectItem>
+                      <SelectItem value="banana">Banana</SelectItem>
+                      <SelectItem value="blueberry">Blueberry</SelectItem>
+                      <SelectItem value="grapes">Grapes</SelectItem>
+                      <SelectItem value="pineapple">Pineapple</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 <Button variant="outline">Submit</Button>
               </form>
             </DialogContent>
