@@ -13,10 +13,24 @@ const SignupForm = () => {
         <span className="text-red-500">{errors.formError}</span>
       )}
       <div>
-        <Input name="name" type="text" placeholder="Name" className="w-full" />
+        <Input name="business-name" type="text" placeholder="Business Name" className="w-full" />
 
-        {errors?.name && (
-          <span className="text-red-500 text-sm">{errors.name}</span>
+        {errors?.businessName && (
+          <span className="text-red-500 text-sm">{errors.businessName}</span>
+        )}
+      </div>
+      <div>
+        <Input name="first-name" type="text" placeholder="First Name" className="w-full" />
+
+        {errors?.firstName && (
+          <span className="text-red-500 text-sm">{errors.firstName}</span>
+        )}
+      </div>
+      <div>
+        <Input name="last-name" type="text" placeholder="Last Name" className="w-full" />
+
+        {errors?.lastName && (
+          <span className="text-red-500 text-sm">{errors.lastName}</span>
         )}
       </div>
       <div>

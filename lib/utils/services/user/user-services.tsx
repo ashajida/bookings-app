@@ -1,8 +1,20 @@
+"use server";
+
 import { PrismaClient, User } from "@prisma/client";
 
 const client = new PrismaClient();
 
-export const createUser = async (data) => {
+type createUserData = {
+  id: string;
+  business: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  password: string;
+};
+
+export const createUser = async (data: createUserData) => {
   try {
     const response = await client.user.create({
       data: {
@@ -28,9 +40,26 @@ export const findUserById = async (id: string) => {
   }
 };
 
+export const findUserByName = async (name: string) => {
+  try {
+    const response = await client.user.findFirst({
+      select: {
+        id: true,
+        business: true,
+      },
+      where: {
+        business: name,
+      },
+    });
+    return response;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 export const findUserByEmail = async (email: string) => {
   try {
-    const response = await client.user.findUnique({
+    const response = await client.user.findFirst({
       where: {
         email,
       },

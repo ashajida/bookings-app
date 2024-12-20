@@ -21,7 +21,9 @@ model Session {
 model User {
   id         String @id
   sessions Session[]
-  name       String
+  business     String  @unique 
+  firstName String
+  lastName String
   phone      String     @unique
   email      String     @unique
   password   String
@@ -89,7 +91,7 @@ model Customer {
   firstName String
   lastName String
   email String @unique
-  phone Int @unique
+  phone String @unique
   userId String
   user User @relation(fields: [userId], references: [id])
   customerBookings CustomerBooking []
@@ -99,6 +101,6 @@ model CustomerBooking {
   id             Int       @id @default(autoincrement())
   customerId Int
   bookingId Int
-  customer Customer @relation(fields: [customerId], references: [id])
-  booking Booking @relation(fields: [bookingId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 }

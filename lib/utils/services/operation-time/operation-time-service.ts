@@ -53,7 +53,7 @@ export const findAllOperationTimes = async (username: string) => {
     const response = await client.operationTime.findFirst({
       where: {
         user: {
-          name: username,
+          business: username,
         },
       },
     });

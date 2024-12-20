@@ -41,7 +41,6 @@ export async function POST(request: Request) {
       }
     }
 
-    console.log(_operationTime);
 
     const bookedSlots = await findAllBookings(username, chosenDate);
 

@@ -37,7 +37,7 @@ export const findAllBlockedDates = async (username: string) => {
     const response = await client.blockedDate.findMany({
       where: {
         user: {
-          name: username,
+          business: username,
         },
       },
     });

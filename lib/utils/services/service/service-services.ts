@@ -36,8 +36,8 @@ export const findAllServices = async (username: string) => {
     const response = await client.service.findMany({
       where: {
         user: {
-          name: username
-        }
+          business: username,
+        },
       },
     });
     return response;

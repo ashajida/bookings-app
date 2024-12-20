@@ -33,9 +33,13 @@ import {
   findOperationTime,
 } from "@/lib/utils/services/operation-time/operation-time-service";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { ArrowLeft,} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  findUserByEmail,
+  findUserByName,
+} from "@/lib/utils/services/user/user-services";
 
 type BookAppointmentResponse = {
   success: boolean;
@@ -51,8 +55,9 @@ type ProgressState =
 
 const customerSchema = z.object({
   email: z.string().email(),
-  name: z.string().min(4, "Name must be at least 4 characters"),
-  phone: z.string().min(7, "Phone number must be at least 7 characters"),
+  firstName: z.string().min(4),
+  lastName: z.string().min(4),
+  phone: z.string().min(7),
 });
 
 type CustomerInputs = z.infer<typeof customerSchema>;
@@ -62,6 +67,7 @@ const User = () => {
   const [visibleFrame, setVisibleFrame] = useState<ProgressState>("Service");
   const [services, setServices] = useState<Array<Service>>([]);
   const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [userId, setUserId] = useState<string>("");
   //const [categories, setCategories] = useState<Array<Record<string, any>>>([]);
   const [appointmentData, setAppointmentData] = useState<
     Partial<AppointmentData>
@@ -158,9 +164,15 @@ const User = () => {
       if (!username) return;
       try {
         const response = await findAllServices(username.toString());
+        const user = await findUserByName(username.toString());
+
         if (response) {
           //const sorted = groupByCategory(response)
+          console.log(response, "services.....");
           setServices(response);
+        }
+        if (user) {
+          setUserId(user.id);
         }
       } catch (error) {
         console.log(error);
@@ -265,7 +277,9 @@ const User = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Choose Date</CardTitle>
-              <Button onClick={() => setVisibleFrame('Service')}><ArrowLeft height={20} width={20}/> Back</Button>
+              <Button onClick={() => setVisibleFrame("Service")}>
+                <ArrowLeft height={20} width={20} /> Back
+              </Button>
             </CardHeader>
             <CardContent className="flex flex-col :md-flex-row gap-6">
               <div className="w-fit">
@@ -308,9 +322,11 @@ const User = () => {
         )}
         {visibleFrame === "CustomerDetails" && (
           <Card>
-            <CardHeader  className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Confirm Booking</CardTitle>
-              <Button onClick={() => setVisibleFrame('Aviability')}><ArrowLeft height={20} width={20}/> Back</Button>
+              <Button onClick={() => setVisibleFrame("Aviability")}>
+                <ArrowLeft height={20} width={20} /> Back
+              </Button>
             </CardHeader>
             <CardContent>
               <form
@@ -320,17 +336,29 @@ const User = () => {
                 <div>
                   <Input
                     type="text"
-                    placeholder="Name"
+                    placeholder="First Name"
                     className="w-full"
-                    {...register("name")}
+                    {...register("firstName")}
                   />
-                  {errors.name && (
+                  {errors.firstName && (
                     <span className="text-red-500 text-sm">
-                      {errors.name.message}
+                      {errors.firstName.message}
                     </span>
                   )}
                 </div>
-
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Last Name"
+                    className="w-full"
+                    {...register("lastName")}
+                  />
+                  {errors.lastName && (
+                    <span className="text-red-500 text-sm">
+                      {errors.lastName.message}
+                    </span>
+                  )}
+                </div>
                 <div>
                   <Input
                     type="tel"
@@ -370,7 +398,9 @@ const User = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Summary</CardTitle>
-              <Button onClick={() => setVisibleFrame('CustomerDetails')}><ArrowLeft height={20} width={20}/> Back</Button>
+              <Button onClick={() => setVisibleFrame("CustomerDetails")}>
+                <ArrowLeft height={20} width={20} /> Back
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="">
@@ -395,6 +425,8 @@ const User = () => {
                     serviceId,
                     chosenDate,
                     customer,
+                    serviceName,
+                    price,
                   } = appointmentData;
 
                   console.log(appointmentData, "appointment data......1");
@@ -404,14 +436,20 @@ const User = () => {
                   if (!minutes) return;
                   if (!serviceId) return;
                   if (!chosenDate) return;
+                  if (!customer) return;
+                  if (!serviceName) return;
+                  if (!price) return;
 
                   submitBookingAction({
+                    userId,
                     status,
                     hour,
                     minutes,
                     serviceId,
                     chosenDate,
                     customer,
+                    serviceName,
+                    price,
                   });
                 }}
               >

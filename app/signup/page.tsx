@@ -28,7 +28,9 @@ const Signup = async () => {
 const userSchema = z.object({
   email: z.string().email(),
   password: z.string().min(7),
-  name: z.string().min(4),
+  businessName: z.string().min(2),
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
   phone: z.string().min(4),
 });
 
@@ -36,7 +38,9 @@ export const handleSignup = async (prevState: unknown, formData: FormData) => {
   const signupData = {
     email: formData.get("email")?.toString() || "",
     password: formData.get("password")?.toString() || "",
-    name: formData.get("name")?.toString() || "",
+    businessName: formData.get("business-name")?.toString() || "",
+    firstName: formData.get("first-name")?.toString() || "",
+    lastName: formData.get("last-name")?.toString() || "",
     phone: formData.get("phone")?.toString() || "",
   };
   const result = userSchema.safeParse(signupData);
@@ -48,7 +52,9 @@ export const handleSignup = async (prevState: unknown, formData: FormData) => {
     return {
       email: errors.fieldErrors.email?.[0],
       password: errors.fieldErrors.password?.[0],
-      name: errors.fieldErrors.name?.[0],
+      businessName: errors.fieldErrors.businessName?.[0],
+      firstName: errors.fieldErrors.firstName?.[0],
+      lastName: errors.fieldErrors.lastName?.[0],
       phone: errors.fieldErrors.phone?.[0],
     };
   }

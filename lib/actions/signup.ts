@@ -9,18 +9,29 @@ import { cookies } from "next/headers";
 import { BaseResponse } from "../utils/types";
 
 type SignupData = {
-  name: string;
+  businessName: string;
+  firstName: string;
+  lastName: string;
   password: string;
   email: string;
   phone: string;
 };
 
-export const signup = async ({ name, password, email, phone }: SignupData) => {
+export const signup = async ({
+  businessName,
+  firstName,
+  lastName,
+  password,
+  email,
+  phone,
+}: SignupData) => {
   const id = generateId(15);
   const passwordHash = await hash(password);
   const data = {
     id: id,
-    name,
+    business: businessName,
+    firstName,
+    lastName,
     phone,
     email,
     password: passwordHash,
@@ -28,6 +39,7 @@ export const signup = async ({ name, password, email, phone }: SignupData) => {
 
   try {
     const response = await createUser(data);
+    console.log(response), "new user......";
 
     if (!response) {
       return {

@@ -1,38 +1,81 @@
 // app/api/bookings/route.ts
 
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-
-// GET all bookings
-export async function GET() {
-  try {
-    const bookings = await prisma.booking.findMany({
-      include: {
-        customer: true,
-        availability: true,
-        service: true,
-      },
-    });
-    return NextResponse.json(bookings, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 });
-  }
-}
+import {
+  createBooking,
+  deleteBooking,
+} from "@/lib/utils/services/booking/booking-services";
 
 // POST create a new booking
 export async function POST(req: Request) {
   try {
-    const { customerId, availabilityId, serviceId } = await req.json();
-    const booking = await prisma.booking.create({
-      data: {
-        customerId,
-        availabilityId,
-        serviceId,
-        bookingDate: new Date(),
+    const { serviceId, status, date, customer, userId } = await req.json();
+
+    const booking = await createBooking({
+      customer: {
+        email: customer.email,
       },
+      date,
+      status,
+      serviceId,
+      userId,
     });
-    return NextResponse.json(booking, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "New service created.",
+        data: booking,
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create booking" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create booking" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST create a new booking
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Provide id.",
+        },
+        { status: 200 }
+      );
+    }
+
+    const booking = await deleteBooking(Number(id));
+
+    if (!booking) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "An error has occured",
+        },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Booking deleted.",
+        data: booking,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to create booking" },
+      { status: 500 }
+    );
   }
 }

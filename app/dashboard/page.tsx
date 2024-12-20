@@ -1,19 +1,26 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { TrendingUp } from "lucide-react"
-import { ChartContainer, type ChartConfig, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, Line, LineChart, } from "recharts";
+import { TrendingUp } from "lucide-react";
+import {
+  ChartContainer,
+  type ChartConfig,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, XAxis, Line, LineChart } from "recharts";
 import { validateRequest } from "@/lib/validateRequest";
-import { findAllBookings, findAllBookingsWithoutFilter } from "@/lib/utils/services/booking/booking-services";
+import {
+  findAllBookings,
+  findAllBookingsWithoutFilter,
+} from "@/lib/utils/services/booking/booking-services";
 
 const Dashboard = () => {
-
   type BookingsData = {
-    date: Date,
-    count: number
-  }
-  
+    date: Date;
+    count: number;
+  };
+
   const [bookingsData, setBookingsData] = useState<BookingsData[]>([]);
 
   const chartData = [
@@ -23,48 +30,68 @@ const Dashboard = () => {
     { month: "April", desktop: 73 },
     { month: "May", desktop: 209 },
     { month: "June", desktop: 214 },
-  ]
-  
-    useEffect(() => {
-      const getData = async () => {
-        const grouped = [] as {}[];
-        const appointmentData = await findAllBookingsWithoutFilter('lashesbykelly');
-        if(!appointmentData) return;
-  
-        const groupedByDateCount = appointmentData.reduce((acc, item) => {
-          // Convert date to YYYY-MM-DD format
-          const dateString = item.date.toISOString().split('T')[0];
-        
-          // Check if the date already exists in the accumulator
-          if (!acc[dateString]) {
-            acc[dateString] = { date: item.date.toDateString(), count: 0 }; // Initialize count object if it doesn't exist
-          }
-        
-          // Increment the count for that date
-          acc[dateString].count++;
-        
-          return acc; // Return the accumulator for the next iteration
-        }, {});
-        
-        // Convert the grouped result to an array of objects
-        const resultArray = Object.values(groupedByDateCount) as BookingsData[];
-  
-        setBookingsData(resultArray);
-        
-        console.log(resultArray);
-      }
-  
-      getData();
-  
-  
-    }, [])
+  ];
 
+  useEffect(() => {
+    const getData = async () => {
+      const { user } = await validateRequest();
+      if (!user) return;
+      const grouped = [] as {}[];
+      let appointmentData = await findAllBookingsWithoutFilter(user.business);
+      if (!appointmentData) return;
+
+      appointmentData = sortedAppointments('2024-12-15', '2024-12-17', appointmentData);
+
+      console.log(appointmentData, 'sorted...');
+
+      const groupedByDateCount = appointmentData.reduce((acc, item) => {
+        // Convert date to YYYY-MM-DD format
+        const dateString = item.date.toISOString().split("T")[0];
+
+        // Check if the date already exists in the accumulator
+        if (!acc[dateString]) {
+          acc[dateString] = { date: item.date.toDateString(), count: 0 }; // Initialize count object if it doesn't exist
+        }
+
+        // Increment the count for that date
+        acc[dateString].count++;
+
+        return acc; // Return the accumulator for the next iteration
+      }, {});
+
+      // Convert the grouped result to an array of objects
+      const resultArray = Object.values(groupedByDateCount) as BookingsData[];
+
+      setBookingsData(resultArray);
+
+      console.log(resultArray);
+    };
+
+    getData();
+  }, []);
+
+  const sortedAppointments = (start: string, end: string, appointment: []) => {
+    const _start = new Date(start);
+    const _end = new Date(end);
+
+    _start.setHours(0, 0, 0, 0);
+    _end.setHours(0, 0, 0, 0);
+
+    const result = appointment.filter((appointment) => {
+      const date = new Date(appointment.date);
+      date.setHours(0, 0, 0, 0);
+
+      return date >= _start && date <= _end;
+    })
+    
+    return result;
+  };
 
   const chartConfig = {
     count: {
       label: "Appointments",
       color: "hsl(var(--chart-1))",
-    }
+    },
   } satisfies ChartConfig;
 
   const lineChartConfig = {
@@ -72,12 +99,12 @@ const Dashboard = () => {
       label: "Desktop",
       color: "hsl(var(--chart-1))",
     },
-  } satisfies ChartConfig
+  } satisfies ChartConfig;
 
   return (
     <div className="grid grid-cols-3">
       <div className="col-span-1">
-      <ChartContainer config={chartConfig} className="min-h-[200px]">
+        <ChartContainer config={chartConfig} className="min-h-[200px]">
           <BarChart accessibilityLayer data={bookingsData}>
             <CartesianGrid vertical={false} />
             <XAxis
@@ -96,7 +123,7 @@ const Dashboard = () => {
         </ChartContainer>
       </div>
       <div className="col-span-1">
-             <ChartContainer config={lineChartConfig} className="min-h-[200px]">
+        <ChartContainer config={lineChartConfig} className="min-h-[200px]">
           <LineChart
             accessibilityLayer
             data={chartData}
