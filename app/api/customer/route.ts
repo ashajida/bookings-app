@@ -1,4 +1,4 @@
-import { createCustomer } from "@/lib/utils/services/customer/customer-services";
+import { createCustomer } from "@/lib/repository/customer/customer";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

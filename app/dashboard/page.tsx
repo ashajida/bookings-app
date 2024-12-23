@@ -13,7 +13,7 @@ import { validateRequest } from "@/lib/validateRequest";
 import {
   findAllBookings,
   findAllBookingsWithoutFilter,
-} from "@/lib/utils/services/booking/booking-services";
+} from "@/lib/repository/booking/booking";
 
 const Dashboard = () => {
   type BookingsData = {

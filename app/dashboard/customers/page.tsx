@@ -23,39 +23,40 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import AddServiceForm from "./AddServiceForm";
+import AddServiceForm from "./AddCustomerForm";
 import EditServiceForm from "./EditServiceForm";
 import { DeleteServiceForm } from "./DeleteServiceForm";
 import { findAllServices } from "@/lib/repository/service/service";
 import { validateRequest } from "@/lib/validateRequest";
+import { findAllCustomers } from "@/lib/repository/customer/customer";
 
-type ServicesData = {
-  price: string;
-  description?: string;
-  duration: string;
-  serviceName: string;
+type CustomerData = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
 };
 
 const Service = () => {
-  const [services, setServices] = useState<[]>([]);
+  const [customers, setCustomers] = useState<[]>([]);
   const [open, setOpen] = useState(false);
   const [newServiceDialog, setNewServiceDialog] = useState(false);
-  const [serviceData, setServiceData] = useState<ServicesData>({});
+  const [customerData, setCustomerData] = useState<CustomerData>({});
 
   useEffect(() => {
-    const getServices = async () => {
+    const getCustomers = async () => {
       const { user } = await validateRequest();
         if (!user) return;
 
-      const response = await findAllServices(user.business);
+      const response = await findAllCustomers(user.business);
       if (!response) return;
-      setServices(response);
+      setCustomers(response);
     };
 
-    getServices();
+    getCustomers();
 
     return () => {
-      setServices([]);
+      setCustomerData([]);
     };
   }, []);
 
@@ -73,18 +74,20 @@ const Service = () => {
             <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Name</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Duration</TableHead>
+                <TableHead className="w-[100px]">First Name</TableHead>
+                <TableHead>LastName</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-            {services.map(({ serviceName, price, duration, description, id }) => (
-                <TableRow key={serviceName}>
-                  <TableCell className="font-medium">{serviceName}</TableCell>
-                  <TableCell>{price.toString()}</TableCell>
-                  <TableCell>{duration}</TableCell>
+            {customers.map(({ firstName, lastName, phone, email, id }) => (
+                <TableRow key={id}>
+                  <TableCell className="font-medium">{firstName}</TableCell>
+                  <TableCell>{lastName}</TableCell>
+                  <TableCell>{phone}</TableCell>
+                  <TableCell>{email}</TableCell>
                   <TableCell className="flex justify-end gap-2">
                     <Button
                       onClick={() => {
@@ -100,7 +103,7 @@ const Service = () => {
                     >
                       Edit
                     </Button>
-                    <DeleteServiceForm setServices={setServices} prevServices={services} id={id} />
+                    <DeleteServiceForm setCustomers={setCustomers} prevCustomers={customers} id={id} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -117,7 +120,7 @@ const Service = () => {
                   Add a new service here. Click save when you&amp;re done.
                 </DialogDescription>
               </DialogHeader>
-              <AddServiceForm setServices={setServices} prevServices={services} />
+              <AddServiceForm setCustomer={setCustomers} prevCustomer={customers} />
             </DialogContent>
           </Dialog>
 

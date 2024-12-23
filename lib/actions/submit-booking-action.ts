@@ -1,6 +1,6 @@
 "use server";
 
-import { createBooking } from "../utils/services/booking/booking-services";
+import { createBooking } from "../repository/booking/booking";
 
 export type AppointmentData = {
   serviceId: number;

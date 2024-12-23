@@ -1,7 +1,7 @@
 "use server";
 
 import { generateId } from "lucia";
-import { createUser } from "../utils/services/user/user-services";
+import { createUser } from "../repository/user/user";
 import { hash } from "argon2";
 import { lucia } from "../auth";
 //import { redirect } from "next/navigation";

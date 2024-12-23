@@ -1,7 +1,7 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
-import { findAllBookings } from "@/lib/utils/services/booking/booking-services";
+import { findAllBookings } from "@/lib/repository/booking/booking";
 import { validateRequest } from "@/lib/validateRequest";
 import React, { useEffect, useState } from "react";
 import { startOfWeek, addDays, format } from "date-fns";

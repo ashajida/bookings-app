@@ -5,11 +5,12 @@ import { PrismaClient, Service } from "@prisma/client";
 
 const client = new PrismaClient();
 
-export const createService = async (data: Record<any, any>) => {
+export const createService = async (userId: string, data: Record<any, any>) => {
   try {
     const response = await client.service.create({
       data: {
         ...data,
+        user: { connect: { id: userId } },
       },
     });
     return response;

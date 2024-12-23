@@ -5,15 +5,16 @@ import { useFormState } from "react-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { createServiceAction } from "@/lib/actions/services/create-service-action";
+import { createCustomerAction } from "@/lib/actions/customers/create-customer-action";
 
 type Props = {
-  setServices: Function,
-  prevServices: []
+  setCustomer: Function,
+  prevCustomer: []
 }
 
-const AddServiceForm = ({setServices, prevServices}: Props) => {
+const AddServiceForm = ({setCustomer, prevCustomer}: Props) => {
   const [formState, action, isPending] = useFormState(
-    createServiceAction,
+    createCustomerAction,
     undefined
   );
   const { toast } = useToast();
@@ -25,7 +26,7 @@ const AddServiceForm = ({setServices, prevServices}: Props) => {
         title: "Success",
         description: `${formState?.formSuccess}`,
       })
-      setServices([...prevServices, formState?.newService]);
+      setCustomer([...prevCustomer, formState?.newService]);
     }
 
     if(formState?.formError) {
@@ -42,43 +43,47 @@ const AddServiceForm = ({setServices, prevServices}: Props) => {
     <form className="flex gap-3 flex-col" action={action}>
       <div>
         <Input
-          name="service-name"
+          name="first-name"
           type="text"
-          placeholder="Service Name"
+          placeholder="First Name"
           className="w-full"
         />
-        {formState?.serviceName && (
-          <span className="text-red-500 text-sm">{formState.serviceName}</span>
+        {formState?.firstName && (
+          <span className="text-red-500 text-sm">{formState.firstName}</span>
         )}
       </div>
       <div>
         <Input
-          name="price"
+          name="last-name"
           type="text"
-          placeholder="Price"
+          placeholder="Last Name"
           className="w-full"
         />
-        {formState?.price && (
-          <span className="text-red-500 text-sm">{formState.price}</span>
+        {formState?.lastName && (
+          <span className="text-red-500 text-sm">{formState.lastName}</span>
         )}
       </div>
       <div>
         <Input
-          name="duration"
-          type="text"
-          placeholder="Duration"
+          name="phone"
+          type="tel"
+          placeholder="Phone"
           className="w-full"
         />
-        {formState?.duration && (
-          <span className="text-red-500 text-sm">{formState.duration}</span>
+        {formState?.phone && (
+          <span className="text-red-500 text-sm">{formState.phone}</span>
         )}
       </div>
       <div>
-        <Textarea
-          name="description"
-          placeholder="Description"
-          className="w-full resize-none"
+        <Input
+          name="email"
+          type="email"
+          placeholder="Email"
+          className="w-full"
         />
+        {formState?.email && (
+          <span className="text-red-500 text-sm">{formState.email}</span>
+        )}
       </div>
       <Button className="w-fit ml-auto">Save</Button>
     </form>
