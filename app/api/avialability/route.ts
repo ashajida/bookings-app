@@ -1,7 +1,7 @@
 import { generateTimeSlots } from "@/lib/utils/functions/generateTimeSlots";
-import { findAllBlockedDates } from "@/lib/utils/services/blocked-days/blocked-date-service";
-import { findAllBookings } from "@/lib/utils/services/booking/booking-services";
-import { findAllOperationTimes } from "@/lib/utils/services/operation-time/operation-time-service";
+import { findAllBlockedDates } from "@/lib/repository/blocked-days/blocked-date";
+import { findAllBookings } from "@/lib/repository/booking/booking";
+import { findAllOperationTimes } from "@/lib/repository/operation-time/operation-time";
 import { NextResponse } from "next/server";
 
 // GET all bookings

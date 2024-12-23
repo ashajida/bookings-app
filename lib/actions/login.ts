@@ -1,5 +1,5 @@
 "use server";
-import { findUserByEmail } from "../utils/services/user/user-services";
+import { findUserByEmail } from "../repository/user/user";
 import { verify } from "argon2";
 import { lucia } from "../auth";
 import { cookies } from "next/headers";

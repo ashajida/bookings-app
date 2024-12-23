@@ -13,8 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { findAllServices } from "@/lib/utils/services/service/service-services";
-import { createServiceAction } from "@/lib/actions/createServiceAction";
+import { findAllServices } from "@/lib/repository/service/service";
+import { createServiceAction } from "@/lib/actions/services/create-service-action";
 
 import {
   Dialog,
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Service } from "@prisma/client";
 import { validateRequest } from "@/lib/validateRequest";
-import { findAllBookings } from "@/lib/utils/services/booking/booking-services";
+import { findAllBookings } from "@/lib/repository/booking/booking";
 import {
   Select,
   SelectContent,
@@ -37,7 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { findAllCustomers } from "@/lib/utils/services/customer/customer-services";
+import { findAllCustomers } from "@/lib/repository/customer/customer";
 import {
   Popover,
   PopoverContent,

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import {
   createOperationTime,
   findOperationTime,
-} from "@/lib/utils/services/operation-time/operation-time-service";
+} from "@/lib/repository/operation-time/operation-time";
 import { validateRequest } from "@/lib/validateRequest";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";

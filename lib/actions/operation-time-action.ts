@@ -1,6 +1,6 @@
 "use server";
 
-import { createOperationTime, findOperationTime, updateOperationTime } from "../utils/services/operation-time/operation-time-service";
+import { createOperationTime, findOperationTime, updateOperationTime } from "../repository/operation-time/operation-time";
 import { validateRequest } from "../validateRequest";
 
 export const operationTimeAction = async (formData: FormData) => {

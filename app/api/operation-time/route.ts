@@ -4,7 +4,7 @@ import {
   createOperationTime,
   findOperationTime,
   updateOperationTime,
-} from "@/lib/utils/services/operation-time/operation-time-service";
+} from "@/lib/repository/operation-time/operation-time";
 
 export async function POST(req: Request) {
   try {

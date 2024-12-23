@@ -29,7 +29,6 @@ export const createCustomer = async ({
         userId,
       },
     });
-    console.log(response, "DB......");
     return response;
   } catch (e) {
     console.log(e);

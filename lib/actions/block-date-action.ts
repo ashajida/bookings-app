@@ -1,5 +1,5 @@
 "use server";
-import { createBlockedDate } from "../utils/services/blocked-days/blocked-date-service";
+import { createBlockedDate } from "../repository/blocked-days/blocked-date";
 import { validateRequest } from "../validateRequest";
 
 export const blockDateAction = async (date: Date) => {

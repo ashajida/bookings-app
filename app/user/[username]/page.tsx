@@ -10,8 +10,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AccordionItem } from "@radix-ui/react-accordion";
-import { findAllServices } from "@/lib/utils/services/service/service-services";
-import { findAllCategories } from "@/lib/utils/services/category/category-services";
+import { findAllServices } from "@/lib/repository/service/service";
+import { findAllCategories } from "@/lib/repository/category/category";
 import { validateRequest } from "@/lib/validateRequest";
 import { Service } from "@prisma/client";
 import {
@@ -26,12 +26,12 @@ import {
   submitBookingAction,
 } from "@/lib/actions/submit-booking-action";
 import { useParams } from "next/navigation";
-import { findAllBlockedDates } from "@/lib/utils/services/blocked-days/blocked-date-service";
+import { findAllBlockedDates } from "@/lib/repository/blocked-days/blocked-date";
 import {
   findAllOperationTimes,
   findDaysOff,
   findOperationTime,
-} from "@/lib/utils/services/operation-time/operation-time-service";
+} from "@/lib/repository/operation-time/operation-time";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
@@ -39,7 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   findUserByEmail,
   findUserByName,
-} from "@/lib/utils/services/user/user-services";
+} from "@/lib/repository/user/user";
 
 type BookAppointmentResponse = {
   success: boolean;

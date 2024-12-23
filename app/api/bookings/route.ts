@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import {
   createBooking,
   deleteBooking,
-} from "@/lib/utils/services/booking/booking-services";
+} from "@/lib/repository/booking/booking";
 
 // POST create a new booking
 export async function POST(req: Request) {
