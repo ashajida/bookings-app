@@ -2,51 +2,77 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useEffect } from "react";
 import { useFormState } from "react-dom";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { createServiceAction } from "@/lib/actions/services/create-service-action";
-import { createCustomerAction } from "@/lib/actions/customers/create-customer-action";
+import { editCustomerAction } from "@/lib/actions/customers/edit-customer-action";
 
 type Props = {
-  setCustomer: React.Dispatch<React.SetStateAction<[]>>;
-  prevCustomer: [];
-}
+  setCustomers: React.Dispatch<React.SetStateAction<[]>>;
+  prevCustomers: [];
+  customerData: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+    id: string;
+  };
+};
 
-const AddServiceForm = ({setCustomer, prevCustomer}: Props) => {
+const EditcustomerForm = ({
+  setCustomers,
+  prevCustomers,
+  customerData: { firstName, lastName, phone, email, id },
+}: Props) => {
   const [formState, action, isPending] = useFormState(
-    createCustomerAction,
+    editCustomerAction,
     undefined
   );
+
   const { toast } = useToast();
 
   useEffect(() => {
-
-    if(formState?.formSuccess) {
+    if (formState?.formSuccess) {
       toast({
         title: "Success",
         description: `${formState?.formSuccess}`,
-      })
-      setCustomer([...prevCustomer, formState?.newService]);
+      });
+      const updatedCustomers = prevCustomers.map((customer) => {
+        if (customer.id === formState?.updatedCustomer.id) {
+          return {
+            ...customer,
+            ...formState.updatedCustomer,
+          };
+        }
+        return customer;
+      });
+      console.log(updatedCustomers, "updated customers....");
+      setCustomers(updatedCustomers);
     }
 
-    if(formState?.formError) {
+    if (formState?.formError) {
       toast({
         title: "Failed",
-        variant: 'destructive',
+        variant: "destructive",
         description: `${formState?.formError}`,
-      })
+      });
     }
+  }, [
+    formState?.formSuccess,
+    formState?.formError,
+    toast,
+    formState?.updatedCustomer,
+    setCustomers,
+  ]);
 
-
-  }, [formState?.formSuccess, formState?.formError, toast]);
   return (
     <form className="flex gap-3 flex-col" action={action}>
       <div>
+        <input type="text" name="customer-id" value={id} hidden />
         <Input
           name="first-name"
           type="text"
-          placeholder="First Name"
+          placeholder="First Name.."
           className="w-full"
+          defaultValue={firstName}
         />
         {formState?.firstName && (
           <span className="text-red-500 text-sm">{formState.firstName}</span>
@@ -56,8 +82,9 @@ const AddServiceForm = ({setCustomer, prevCustomer}: Props) => {
         <Input
           name="last-name"
           type="text"
-          placeholder="Last Name"
+          placeholder="Last Name.."
           className="w-full"
+          defaultValue={lastName}
         />
         {formState?.lastName && (
           <span className="text-red-500 text-sm">{formState.lastName}</span>
@@ -66,9 +93,10 @@ const AddServiceForm = ({setCustomer, prevCustomer}: Props) => {
       <div>
         <Input
           name="phone"
-          type="tel"
+          type="text"
           placeholder="Phone"
           className="w-full"
+          defaultValue={phone}
         />
         {formState?.phone && (
           <span className="text-red-500 text-sm">{formState.phone}</span>
@@ -77,9 +105,10 @@ const AddServiceForm = ({setCustomer, prevCustomer}: Props) => {
       <div>
         <Input
           name="email"
-          type="email"
-          placeholder="Email"
+          type="text"
+          placeholder="Email..."
           className="w-full"
+          defaultValue={email}
         />
         {formState?.email && (
           <span className="text-red-500 text-sm">{formState.email}</span>
@@ -90,4 +119,4 @@ const AddServiceForm = ({setCustomer, prevCustomer}: Props) => {
   );
 };
 
-export default AddServiceForm;
+export default EditcustomerForm;

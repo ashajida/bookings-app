@@ -6,11 +6,11 @@ import { useFormState } from "react-dom";
 
 type Props = {
     id: string;
-    setCustomers: React.Dispatch<React.SetStateAction<[]>>;
-    prevCustomers: []
+    setBookings: React.Dispatch<React.SetStateAction<[]>>;
+    prevBookings: []
 }
   
-export const DeleteServiceForm = ({setCustomers, prevCustomers, id}: Props ) => {
+export const DeleteBookingForm = ({setBookings, prevBookings, id}: Props ) => {
       const [formState, action, isPending] = useFormState(
         deleteCustomerAction,
         undefined
@@ -24,8 +24,8 @@ export const DeleteServiceForm = ({setCustomers, prevCustomers, id}: Props ) => 
             title: "Success",
             description: `${formState?.formSuccess}`,
           })
-          const filteredCustomers = prevCustomers.filter(filter => filter.id !== formState?.deletedCustomer.id)
-          setCustomers(filteredCustomers);
+          const filteredBookings = prevBookings.filter(filter => filter.id !== formState?.deletedBookings.id)
+          setBookings(filteredBookings);
         }
   
         if(formState?.formError) {
@@ -34,10 +34,10 @@ export const DeleteServiceForm = ({setCustomers, prevCustomers, id}: Props ) => 
             description: `${formState?.formError}`,
           })
         }
-      }, [formState?.formError, formState?.formSuccess, toast, formState?.deletedCustomer, setCustomers, prevCustomers])
+      }, [formState?.formError, formState?.formSuccess, toast, formState?.deletedBookings, setBookings])
     return(
       <form action={action}>
-        <input name="customer-id" value={id} hidden />
+        <input name="booking-id" value={id} hidden />
         <Button variant="destructive" disabled={isPending ? true : false}>{isPending ? 'Loading...' : 'Delete'}</Button>
       </form>
     );  

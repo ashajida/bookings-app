@@ -1,11 +1,12 @@
-import { deleteService } from "../../repository/service/service";
+import { deleteCustomer } from "@/lib/repository/customer/customer";
 
-export const deleteServiceAction = async (prevState: unknown,
+export const deleteCustomerAction = async (prevState: unknown,
     formData: FormData) => {
-    const serviceId = formData.get('service-id')?.toString();
+    const customerId = formData.get('customer-id')?.toString();
+    if(!customerId) return;
 
     try {
-      const result = await deleteService(Number(serviceId!));
+      const result = await deleteCustomer(Number(customerId));
   
       if(!result) {
         return {
@@ -14,8 +15,8 @@ export const deleteServiceAction = async (prevState: unknown,
       }
     
       return {
-        formSuccess: 'Service deleted.',
-        deleteService: result
+        formSuccess: 'Customer deleted.',
+        deletedCustomer: result
       }
     } catch (error) {
       console.log(error);

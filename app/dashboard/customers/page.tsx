@@ -24,23 +24,23 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import AddServiceForm from "./AddCustomerForm";
-import EditServiceForm from "./EditServiceForm";
 import { DeleteServiceForm } from "./DeleteServiceForm";
-import { findAllServices } from "@/lib/repository/service/service";
 import { validateRequest } from "@/lib/validateRequest";
 import { findAllCustomers } from "@/lib/repository/customer/customer";
+import EditCustomerForm from "./EditCustomerForm";
 
 type CustomerData = {
   firstName: string;
   lastName: string;
   phone: string;
   email: string;
+  id: string;
 };
 
 const Service = () => {
   const [customers, setCustomers] = useState<[]>([]);
   const [open, setOpen] = useState(false);
-  const [newServiceDialog, setNewServiceDialog] = useState(false);
+  const [newCustomerDialog, setNewCustomerDialog] = useState(false);
   const [customerData, setCustomerData] = useState<CustomerData>({});
 
   useEffect(() => {
@@ -65,11 +65,11 @@ const Service = () => {
       <div className="">
         <Button
           variant="outline"
-          onClick={() => setNewServiceDialog(!newServiceDialog)}
+          onClick={() => setNewCustomerDialog(!newCustomerDialog)}
         >
-          Add Service
+          Add Customer
         </Button>
-        {services && (
+        {customers && (
           <Table>
             <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
@@ -92,12 +92,12 @@ const Service = () => {
                     <Button
                       onClick={() => {
                         setOpen(!open);
-                        setServiceData({
-                          serviceName,
-                          price: String(price),
-                          duration,
-                          description,
-                          serviceId: id
+                        setCustomerData({
+                          firstName,
+                          lastName,
+                          phone,
+                          email,
+                          id,
                         });
                       }}
                     >
@@ -111,29 +111,28 @@ const Service = () => {
           </Table>
         )}
         <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-[500px] max-w-[90%] p-8">
-          <Dialog open={newServiceDialog} onOpenChange={setNewServiceDialog}>
+          <Dialog open={newCustomerDialog} onOpenChange={setNewCustomerDialog}>
             <DialogTrigger></DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Add new service</DialogTitle>
+                <DialogTitle>Add new customer</DialogTitle>
                 <DialogDescription>
-                  Add a new service here. Click save when you&amp;re done.
+                  Add a new customer here. Click save when you&apos;re done.
                 </DialogDescription>
               </DialogHeader>
               <AddServiceForm setCustomer={setCustomers} prevCustomer={customers} />
             </DialogContent>
           </Dialog>
-
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger></DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Edit Service</DialogTitle>
+                <DialogTitle>Edit Customers</DialogTitle>
                 <DialogDescription>
-                  Make changes to your service. Click save when you're done.
+                  Make changes to customers. Click save when you&apos;re done.
                 </DialogDescription>
               </DialogHeader>
-              <EditServiceForm setServices={setServices} prevServices={services} serviceData={serviceData} />
+              <EditCustomerForm setCustomers={setCustomers} prevCustomers={customers} customerData={customerData} />
             </DialogContent>
           </Dialog>
         </div>

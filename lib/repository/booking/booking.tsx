@@ -8,22 +8,27 @@ type CreateBookingData = {
   date: Date;
   serviceId: number;
   status: string;
-  userId: string;
   customer: {
     firstName?: string;
     lastName?: string;
-    email: string;
+    email?: string;
     phone?: number;
+    id?: number;
   };
 };
 
+/**
+ *
+ * @param data
+ * @returns
+ */
 export const createBooking = async (data: CreateBookingData) => {
-  const { serviceId, status, date, customer, userId } = data;
+  const { serviceId, status, date, customer } = data;
 
   try {
     let existingCustomer = await client.customer.findUnique({
       where: {
-        email: customer.email,
+        id: customer.id,
       },
     });
 
@@ -34,7 +39,6 @@ export const createBooking = async (data: CreateBookingData) => {
           lastName: customer.lastName!,
           phone: customer.phone!,
           email: customer.email,
-          userId,
         },
       });
     }
@@ -150,16 +154,15 @@ export const findAllBookingByMonth = async (userId: string, date: Date) => {
   } catch (error) {}
 };
 
-
 export const deleteBooking = async (bookingId: number) => {
   try {
     const response = await client.booking.delete({
       where: {
-        id: bookingId
-      }
+        id: bookingId,
+      },
     });
     return response;
   } catch (error) {
     console.log(error);
   }
-}
+};

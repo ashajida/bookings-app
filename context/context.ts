@@ -29,3 +29,5 @@ export const authContextRedcuer = (action: string, payload: {[key: string]: any}
 const user: Partial<User> = {}
 
 export const AuthContext = createContext(user);
+
+export const ServicesContext = createContext({});
