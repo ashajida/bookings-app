@@ -14,10 +14,9 @@ type BookingData = z.infer<typeof bookingSchema>;
 
 export const createBookingWrapper = async ({
   date,
-  timeSlot,
   customerId,
   serviceId,
-}: BookingData) => {
+}) => {
   try {
     const { user } = await validateRequest();
 
@@ -26,8 +25,7 @@ export const createBookingWrapper = async ({
     }
 
     const data = {
-      date: new Date(date),
-      timeSlot,
+      date,
       serviceId: Number(serviceId),
       status: "pending",
       customer: {
@@ -58,6 +56,9 @@ export const createBookingAction = async (
     timeSlot: formData.get("time-slot")?.toString() || "",
   };
   const result = bookingSchema.safeParse(bookingData);
+  const _time = bookingData.timeSlot.split(":");
+  const _date = new Date(bookingData.date);
+  _date.setHours(Number(_time[0]), Number(_time[1]));
 
   if (!result.success) {
     const errors = result.error.flatten();
@@ -69,7 +70,11 @@ export const createBookingAction = async (
     };
   }
 
-  const response = await createBookingWrapper(bookingData);
+  const response = await createBookingWrapper({
+    customerId: result.data.customerId,
+    serviceId: result.data.serviceId,
+    date: _date,
+  });
 
   if (!response) {
     return {

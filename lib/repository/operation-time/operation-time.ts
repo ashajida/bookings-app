@@ -35,19 +35,6 @@ export const createOperationTime = async (
   }
 };
 
-export const findOperationTime = async (userId: string) => {
-  try {
-    const response = await client.operationTime.findUnique({
-      where: {
-        userId,
-      },
-    });
-    return response;
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 export const findAllOperationTimes = async (username: string) => {
   try {
     const response = await client.operationTime.findFirst({
@@ -56,6 +43,25 @@ export const findAllOperationTimes = async (username: string) => {
           business: username,
         },
       },
+    });
+    return response;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const findOperationTime = async (id: string, day: string) => {
+  console.log(id, day, 'username1, day');
+  try {
+    const response = await client.operationTime.findFirst({
+      where: {
+        user: {
+          id
+        },
+      },
+      select: {
+        [day]: true,
+      }
     });
     return response;
   } catch (e) {

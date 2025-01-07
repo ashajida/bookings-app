@@ -32,12 +32,12 @@ export const findService = async (id: number) => {
   }
 };
 
-export const findAllServices = async (username: string) => {
+export const findAllServices = async (id: string) => {
   try {
     const response = await client.service.findMany({
       where: {
         user: {
-          business: username,
+          id,
         },
       },
     });

@@ -47,7 +47,7 @@ const Service = () => {
       const { user } = await validateRequest();
         if (!user) return;
 
-      const response = await findAllServices(user.business);
+      const response = await findAllServices(user.id);
       if (!response) return;
       setServices(response);
     };

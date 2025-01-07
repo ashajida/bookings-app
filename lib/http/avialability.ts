@@ -1,5 +1,5 @@
 type Data = {
-    username: string;
+    id: string;
     chosenDate: Date;
 }
 
@@ -8,7 +8,7 @@ export const getAviability = async (data: Data) => {
         const response = await fetch("/api/avialability", {
           method: "POST",
           body: JSON.stringify({
-            username: data.username,
+            id: data.id,
             chosenDate: data.chosenDate.toString(),
           }),
         });

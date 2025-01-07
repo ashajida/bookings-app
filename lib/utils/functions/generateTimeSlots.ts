@@ -4,6 +4,7 @@ type GenerateTimeSlotsOptions = {
   booked?: {[key: string]: any}[],
   blockedDates?: {[key: string]: any}[]
 }
+
 export const generateTimeSlots = (
   startTime: string,
   endTime: string,
@@ -19,6 +20,7 @@ export const generateTimeSlots = (
   openingTime.setHours(openingHr, openingMins, 0, 0)
 
   let current = new Date();
+
   current.setHours(
     openingTime.getHours(),
     openingTime.getMinutes(),
@@ -63,10 +65,8 @@ export const generateTimeSlots = (
         // Calculate the end of the booked time slot based on its duration
         const bookedEnd = new Date(bookedStart);
         bookedEnd.setMinutes(bookedStart.getMinutes() + 50);
-        console.log(current, bookedStart, 'booked date...12b') 
         // If the current time is within the booked range, mark it as booked
         if (current >= bookedStart && current < bookedEnd) {
-          console.log(true, 'booked start');
           isBooked = true;
           break;
         }
@@ -81,6 +81,8 @@ export const generateTimeSlots = (
     // Increment time by the interval (e.g., 60 minutes)
     current.setMinutes(current.getMinutes() + interval);
   }
+
+  console.log(times, 'times....');
 
   return times;
 };

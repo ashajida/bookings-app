@@ -35,9 +35,10 @@ type Props = {
   prevBookings: [];
   setNewCustomerDialog: React.Dispatch<React.SetStateAction<boolean>>;
   newCustomerDialog: boolean;
+  selectedBooking: {}
 };
 
-const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCustomerDialog }: Props) => {
+const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCustomerDialog, selectedBooking }: Props) => {
   const [formState, action, isPending] = useFormState(
     createBookingAction,
     undefined
@@ -55,10 +56,11 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
     const { user } = await validateRequest();
     if (!user) return;
     const response = await getAviability({
-      username: user.business,
+      id: user.id,
       chosenDate: date,
     });
     if (response.success) {
+    console.log(response, 'response.....');
       setTimeSlots(response.data);
     }
   };
@@ -99,16 +101,17 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
 
     getServices();
     getCustomers();
+    handleSelected(selectedBooking?.date);
 
     return () => {
       setServices([]);
       setCustomers([]);
     };
   }, [formState?.formSuccess, formState?.formError, toast]);
-
+console.log(selectedBooking.date)
   return (
     <form className="flex gap-3 flex-col z-[-1]" action={action}>
-      <Select name="service-id">
+      <Select name="service-id" defaultValue={selectedBooking?.service?.id.toString()}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Services" />
         </SelectTrigger>
@@ -118,9 +121,11 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
             {services.length &&
               services.map((service, index) => (
                 <SelectItem
-                  className="capitalize"
+                  className={`capitalize ${selectedBooking?.service?.id === service.id}`}
                   key={index}
                   value={service.id.toString()}
+                  selected={selectedBooking?.service?.id === service.id}
+                  data-test={`${selectedBooking?.service?.id === service.id}`}
                 >
                   {service.serviceName}
                 </SelectItem>
@@ -159,7 +164,7 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
       {formState?.date && (
         <span className="text-red-500 text-sm">{formState.date}</span>
       )}
-      <Select name="time-slot">
+      <Select name="time-slot" defaultValue={format(selectedBooking.date, 'HH:mm')} >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Time Slot" />
         </SelectTrigger>
@@ -181,7 +186,7 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
       {formState?.timeSlot && (
         <span className="text-red-500 text-sm">{formState.timeSlot}</span>
       )}
-      <Select name="customer-id">
+      <Select name="customer-id" defaultValue={selectedBooking?.customerBookings[0]?.customer.id.toString()}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Customers" />
         </SelectTrigger>

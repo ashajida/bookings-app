@@ -71,7 +71,8 @@ const Appointments = () => {
       const { user } = await validateRequest();
       if (!user) return;
 
-      const response = await findAllBookings(user.business);
+      const response = await findAllBookings(user.id);
+      console.log(response, user.id, "response.....");
       if (!response) return;
       setBookings(response);
     };
@@ -148,7 +149,10 @@ const Appointments = () => {
                       </form>
                     </TableCell>
                     <TableCell className="flex justify-end gap-2">
-                      <Button onClick={() => setOpen(!open)}>Edit</Button>
+                      <Button onClick={() => {
+                        setSelectedBooking(booking)
+                        setOpen(!open)
+                        }}>Edit</Button>
                       <DeleteBookingForm id={booking.id.toString()} setBookings={setBookings} prevBookings={bookings}/>
                     </TableCell>
                   </TableRow>
@@ -182,7 +186,7 @@ const Appointments = () => {
                   done.
                 </DialogDescription>
               </DialogHeader>
-              <EditBookingForm setBookings={setBookings} prevBookings={bookings} />
+              <EditBookingForm setBookings={setBookings} prevBookings={bookings} selectedBooking={selectedBooking} />
               <DialogFooter>
                 <Button type="submit">Save changes</Button>
               </DialogFooter>

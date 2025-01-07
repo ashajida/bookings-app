@@ -1,6 +1,7 @@
 "use server";
 
 import { Booking, PrismaClient } from "@prisma/client";
+import { endOfDay, startOfDay } from "date-fns";
 
 const client = new PrismaClient();
 
@@ -74,7 +75,7 @@ export const createBooking = async (data: CreateBookingData) => {
 };
 
 export const findAllBookings = async (
-  username: string,
+  id: string,
   chosenDate: Date = new Date()
 ) => {
   const date = new Date(chosenDate);
@@ -99,13 +100,9 @@ export const findAllBookings = async (
   try {
     const response = await client.booking.findMany({
       where: {
-        // date: {
-        //   gte: startOfDay.toISOString(), // Start of the day in UTC
-        //   lte: endOfDay.toISOString(),
-        // },
         service: {
           user: {
-            business: username,
+            id,
           },
         },
       },
@@ -166,3 +163,41 @@ export const deleteBooking = async (bookingId: number) => {
     console.log(error);
   }
 };
+
+export const findAllBookingsByDate = async (
+  id: string,
+  date: Date = new Date()
+) => {
+  //const date = new Date(chosenDate);
+
+  const startOfDayUTC = startOfDay(date);
+const endOfDayUTC = endOfDay(date);
+
+  try {
+    const response = await client.booking.findMany({
+      where: {
+        date: {
+          gte: startOfDayUTC,
+          lte: endOfDayUTC,
+        },
+        service: {
+          user: {
+            id,
+          },
+        },
+      },
+      include: {
+        customerBookings: {
+          include: {
+            customer: true,
+          },
+        },
+        service: true,
+      },
+    });
+    return response;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
