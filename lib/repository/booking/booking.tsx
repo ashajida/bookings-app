@@ -201,3 +201,19 @@ const endOfDayUTC = endOfDay(date);
   }
 };
 
+
+export const findBookingById = async (id: number) => {
+  try {
+    const booking = await client.booking.findUnique({
+      where: {
+        id,
+      },
+    });
+    return {
+      success: true,
+      data: booking,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}

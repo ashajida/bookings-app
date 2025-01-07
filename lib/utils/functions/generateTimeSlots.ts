@@ -74,9 +74,11 @@ export const generateTimeSlots = (
     }
 
     // If not booked, add the time slot to the list
-    if (!isBooked) {
-      times.push(timeSlot);
-    }
+    // if (!isBooked) {
+    //   times.push(timeSlot);
+    // }
+
+    times.push(timeSlot);
 
     // Increment time by the interval (e.g., 60 minutes)
     current.setMinutes(current.getMinutes() + interval);
