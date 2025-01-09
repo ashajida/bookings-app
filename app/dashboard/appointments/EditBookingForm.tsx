@@ -35,8 +35,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import AddCustomerForm from "../customers/AddCustomerForm";
+<<<<<<< HEAD
 import { findBookingByDate, findBookingById } from "@/lib/repository/booking/booking";
 import { getfilteredTimeSlots } from "@/lib/services/get-filtered-time-slots";
+=======
+import { findBookingById } from "@/lib/repository/booking/booking";
+>>>>>>> 75c0fe373abcf11a5e7b30b0051cf9341b0f956f
 
 type Props = {
   setBookings: React.Dispatch<React.SetStateAction<[]>>;
@@ -226,8 +230,13 @@ const EditBookingForm = ({
       )}
 
       <h1>
+<<<<<<< HEAD
         {currentTimeSlot
           ? currentTimeSlot
+=======
+        {!isfetchingTimeSlots
+          ? timeSlots[timeSlots.indexOf(format(selectedBooking.date, "HH:mm"))]
+>>>>>>> 75c0fe373abcf11a5e7b30b0051cf9341b0f956f
           : "No time slots"}
       </h1>
 
