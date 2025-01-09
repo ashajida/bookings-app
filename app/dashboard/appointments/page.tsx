@@ -166,9 +166,9 @@ const Appointments = () => {
             <DialogTrigger></DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Edit profile</DialogTitle>
+                <DialogTitle>Add booking</DialogTitle>
                 <DialogDescription>
-                  Make changes to your profile here. Click save when you're
+                  Add new booking here. Click save when you're
                   done.
                 </DialogDescription>
               </DialogHeader>
@@ -180,9 +180,9 @@ const Appointments = () => {
             <DialogTrigger></DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Edit profile</DialogTitle>
+                <DialogTitle>Edit booking</DialogTitle>
                 <DialogDescription>
-                  Make changes to your profile here. Click save when you&amp;re
+                  Make changes to booking. Click save when you&amp;re
                   done.
                 </DialogDescription>
               </DialogHeader>

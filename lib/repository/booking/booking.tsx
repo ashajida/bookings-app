@@ -201,3 +201,42 @@ const endOfDayUTC = endOfDay(date);
   }
 };
 
+
+export const findBookingById = async (id: number) => {
+  try {
+    const booking = await client.booking.findUnique({
+      where: {
+        id,
+      },
+    });
+    return {
+      success: true,
+      data: booking,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+export const findBookingByDate = async (date: Date) => {
+  const startDate = startOfDay(date); // e.g., 2025-01-07T00:00:00.000Z
+    const endDate = endOfDay(date); 
+
+  try {
+    const booking = await client.booking.findMany({
+      where: {
+        date : {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+    });
+    return {
+      success: true,
+      data: booking,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}

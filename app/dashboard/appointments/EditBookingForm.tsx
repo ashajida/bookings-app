@@ -27,18 +27,32 @@ import { findAllCustomers } from "@/lib/repository/customer/customer";
 import { findAllServices } from "@/lib/repository/service/service";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import AddCustomerForm from "../customers/AddCustomerForm";
+import { findBookingByDate, findBookingById } from "@/lib/repository/booking/booking";
+import { getfilteredTimeSlots } from "@/lib/services/get-filtered-time-slots";
 
 type Props = {
   setBookings: React.Dispatch<React.SetStateAction<[]>>;
   prevBookings: [];
   setNewCustomerDialog: React.Dispatch<React.SetStateAction<boolean>>;
   newCustomerDialog: boolean;
-  selectedBooking: {}
+  selectedBooking: {};
 };
 
-const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCustomerDialog, selectedBooking }: Props) => {
+const EditBookingForm = ({
+  setBookings,
+  prevBookings,
+  setNewCustomerDialog,
+  newCustomerDialog,
+  selectedBooking,
+}: Props) => {
   const [formState, action, isPending] = useFormState(
     createBookingAction,
     undefined
@@ -49,21 +63,37 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [services, setServices] = useState<[]>([]);
+  const [isfetchingTimeSlots, setIsFetchingTimeSlots] = useState(false);
+  const [currentTimeSlot, setCurrentTimeSlot] = useState<string>();
 
   const handleSelected = async (date?: Date) => {
     if (!date) return;
     setSelectedDate(date);
-    const { user } = await validateRequest();
-    if (!user) return;
-    const response = await getAviability({
-      id: user.id,
-      chosenDate: date,
-    });
-    if (response.success) {
-    console.log(response, 'response.....');
-      setTimeSlots(response.data);
+    try {
+      setIsFetchingTimeSlots(true);
+      const { user } = await validateRequest();
+      if (!user) return;
+      const response = await findBookingById(selectedBooking.id);
+
+      if (!response.success && response.data) return;
+      
+      setCurrentTimeSlot(format(response.data.date, "HH:mm"));
+      
+      const filteredTimeSlots = await getfilteredTimeSlots(date, user.id);
+
+      if(!filteredTimeSlots) return;
+
+      setTimeSlots(filteredTimeSlots);
+
+      console.log(filteredTimeSlots, "timeSlots....");
+    } catch (error) {
+      console.log(error, "error....");
+    } finally {
+      setIsFetchingTimeSlots(false);
     }
   };
+
+
 
   useEffect(() => {
     if (formState?.formSuccess) {
@@ -99,19 +129,47 @@ const EditBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newC
       setCustomers(response);
     };
 
+    // const getTimeSlots = async (date?: Date) => {
+    //   if (!date) return;
+    //   setSelectedDate(date);
+    //   const timeSlots = await getAviability({
+    //     id: user.id,
+    //     chosenDate: date,
+    //   });
+
+    //   if (!timeSlots.success) return;
+
+    //   const bookings = await findBookingByDate(selectedBooking.date);
+    //   if(!bookings.success) return;
+
+    //   const timeSlots = bookings.data.map((booking) => format(booking.date, "HH:mm"));
+
+    //   const filteredTimeSlots = timeSlots.data.filter((time) => {
+    //     return !timeSlots.includes(time);
+    //   });
+
+    //   setTimeSlots(filteredTimeSlots);
+  
+    // };
+
     getServices();
     getCustomers();
     handleSelected(selectedBooking?.date);
+    //getTimeSlots(selectedBooking?.date);
 
     return () => {
       setServices([]);
       setCustomers([]);
+      // setTimeSlots([]);
     };
   }, [formState?.formSuccess, formState?.formError, toast]);
-console.log(selectedBooking.date)
+
   return (
     <form className="flex gap-3 flex-col z-[-1]" action={action}>
-      <Select name="service-id" defaultValue={selectedBooking?.service?.id.toString()}>
+      <Select
+        name="service-id"
+        defaultValue={selectedBooking?.service?.id.toString()}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Services" />
         </SelectTrigger>
@@ -121,7 +179,9 @@ console.log(selectedBooking.date)
             {services.length &&
               services.map((service, index) => (
                 <SelectItem
-                  className={`capitalize ${selectedBooking?.service?.id === service.id}`}
+                  className={`capitalize ${
+                    selectedBooking?.service?.id === service.id
+                  }`}
                   key={index}
                   value={service.id.toString()}
                   selected={selectedBooking?.service?.id === service.id}
@@ -164,7 +224,18 @@ console.log(selectedBooking.date)
       {formState?.date && (
         <span className="text-red-500 text-sm">{formState.date}</span>
       )}
-      <Select name="time-slot" defaultValue={format(selectedBooking.date, 'HH:mm')} >
+
+      <h1>
+        {currentTimeSlot
+          ? currentTimeSlot
+          : "No time slots"}
+      </h1>
+
+      <Select
+        name="time-slot"
+        value={currentTimeSlot}
+        onValueChange={(e) => setCurrentTimeSlot(e)}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Time Slot" />
         </SelectTrigger>
@@ -186,7 +257,10 @@ console.log(selectedBooking.date)
       {formState?.timeSlot && (
         <span className="text-red-500 text-sm">{formState.timeSlot}</span>
       )}
-      <Select name="customer-id" defaultValue={selectedBooking?.customerBookings[0]?.customer.id.toString()}>
+      <Select
+        name="customer-id"
+        defaultValue={selectedBooking?.customerBookings[0]?.customer.id.toString()}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Customers" />
         </SelectTrigger>
@@ -218,14 +292,17 @@ console.log(selectedBooking.date)
       )}
       <Button className="w-fit ml-auto">Submit</Button>
       <Dialog open={newCustomerDialog} onOpenChange={setNewCustomerDialog}>
-            <DialogTrigger></DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Customer</DialogTitle>
-              </DialogHeader>
-              <AddCustomerForm setCustomer={setCustomers} prevCustomer={customers} />
-            </DialogContent>
-          </Dialog>
+        <DialogTrigger></DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Customer</DialogTitle>
+          </DialogHeader>
+          <AddCustomerForm
+            setCustomer={setCustomers}
+            prevCustomer={customers}
+          />
+        </DialogContent>
+      </Dialog>
     </form>
   );
 };
