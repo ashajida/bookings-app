@@ -4,7 +4,7 @@ import { findBookingByDate } from "../repository/booking/booking";
 
 export const getfilteredTimeSlots = async (date: Date, userId: string) => {
           const timeSlots = await getAviability({
-            id: user.id,
+            id: userId,
             chosenDate: date,
           });
     

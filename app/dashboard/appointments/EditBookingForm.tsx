@@ -35,12 +35,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import AddCustomerForm from "../customers/AddCustomerForm";
-<<<<<<< HEAD
-import { findBookingByDate, findBookingById } from "@/lib/repository/booking/booking";
-import { getfilteredTimeSlots } from "@/lib/services/get-filtered-time-slots";
-=======
 import { findBookingById } from "@/lib/repository/booking/booking";
->>>>>>> 75c0fe373abcf11a5e7b30b0051cf9341b0f956f
+import { getFilteredTimeSlotsByDate } from "@/lib/services/get-filtered-time-slots-2";
+import { getfilteredTimeSlots } from "@/lib/services/get-filtered-time-slots";
 
 type Props = {
   setBookings: React.Dispatch<React.SetStateAction<[]>>;
@@ -82,6 +79,10 @@ const EditBookingForm = ({
       if (!response.success && response.data) return;
       
       setCurrentTimeSlot(format(response.data.date, "HH:mm"));
+
+      const times = await getFilteredTimeSlotsByDate(date, selectedBooking, user.id);
+
+      console.log(times, "times....");
       
       const filteredTimeSlots = await getfilteredTimeSlots(date, user.id);
 
@@ -132,6 +133,8 @@ const EditBookingForm = ({
       if (!response) return;
       setCustomers(response);
     };
+
+
 
     // const getTimeSlots = async (date?: Date) => {
     //   if (!date) return;
@@ -230,13 +233,8 @@ const EditBookingForm = ({
       )}
 
       <h1>
-<<<<<<< HEAD
-        {currentTimeSlot
-          ? currentTimeSlot
-=======
         {!isfetchingTimeSlots
           ? timeSlots[timeSlots.indexOf(format(selectedBooking.date, "HH:mm"))]
->>>>>>> 75c0fe373abcf11a5e7b30b0051cf9341b0f956f
           : "No time slots"}
       </h1>
 
