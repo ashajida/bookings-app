@@ -16,19 +16,21 @@ export const getFilteredTimeSlotsByDate = async (
   // booking with the same service id and get the times and duration
   // timeslots
 
-  const bookings = await findBookingByDate(date, service.id);
+  const bookings = await findBookingByDate(date, userId);
   if (!bookings.success) return;
 
   const bookingTimes = bookings.data.map((booking) =>
     format(booking.date, "HH:mm")
   ); // [09:00, 10:00, 11:00]
 
-  const operationTime = await findOperationTimeByDay(format(date, 'EEEE').toLowerCase(), userId); // Monday '09:00, 17:00'
+  const day = format(date, 'EEEE').toLowerCase()
 
-  console.log(operationTime, "operationTime");
+  const operationTime = await findOperationTimeByDay(day, userId); // Monday '09:00, 17:00'
+
   if (!operationTime.success) return;
 
-  const openingClosingTimes = operationTime.data[date].split(","); // ['09:00', '17:00']
+  const openingClosingTimes = operationTime.data[day].split(","); // ['09:00', '17:00']
+
 
   const timeSlots = await genarateTimes(
     openingClosingTimes[0],
@@ -36,7 +38,7 @@ export const getFilteredTimeSlotsByDate = async (
     service.duration
   ); // list of  times from 09:00 to 17:00
 
-  
+  console.log(timeSlots, "timeSlots123");
 
   const filteredTimeSlots = timeSlots.filter((time) => {
     const slotStart = parse(time, "HH:mm", new Date());
@@ -54,6 +56,7 @@ export const getFilteredTimeSlotsByDate = async (
     });
   });
 
+  console.log(filteredTimeSlots, "filtered");
   return filteredTimeSlots;
 };
 

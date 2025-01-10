@@ -1,3 +1,4 @@
+"use server";
 import { PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
@@ -19,19 +20,18 @@ export const createAviability = async (data: OwnerData) => {
 };
 
 export const findOperationTimeByDay = async (day: string, userId: string) => {
-  console.log("response......");
-
   try {
-    const response = await client.operationTime.findUnique({
+    const response = await client.operationTime.findFirst({
       where: {
-        userId: userId,
+        user: {
+         id: userId,
+        },
       },
       select: {
         [day]: true,
-      },
+      }
     });
     
-
     return {
       success: true,
       data: response,
@@ -39,7 +39,7 @@ export const findOperationTimeByDay = async (day: string, userId: string) => {
   } catch (e) {
     return {
       success: false,
-      error: "An error occurred while fetching operation time",
+      error: e,
     };
   }
 };

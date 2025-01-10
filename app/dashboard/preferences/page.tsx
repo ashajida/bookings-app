@@ -45,24 +45,27 @@ const Preferences = () => {
     | "sunday";
 
   const handleOperationTimeSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    formData: FormData
   ) => {
-    e.preventDefault();
-    const target = e.target as HTMLFormElement | null;
-    if (!target) return;
+    //e.preventDefault();
 
     const { user } = await validateRequest();
     if (!user) return;
 
-    const formData = new FormData(target);
+    const data = {
+      sunday: `${formData.get("sunday-opening")},${formData.get("sunday-closing")}` as string,
+      monday: `${formData.get("monday-opening")},${formData.get("monday-closing")}})` as string,
+      tuesday: `${formData.get("tuesday-opening")},${formData.get("tuesday-closing")}})` as string,
+      wednesday: `${formData.get("wednesday-opening")},${formData.get("wednesday-closing")}})` as string,
+      thursday: `${formData.get("thursday-opening")},${formData.get("thursday-closing")}})` as string,
+      friday: `${formData.get("friday-opening")},${formData.get("friday-closing")}})` as string,
+      saturday: `${formData.get("saturday-opening")},${formData.get("saturday-closing")}})` as string,
+    }
 
     try {
-      const response = await fetch("/api/operation-time", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      console.log(data);
+      const response = await createOperationTime(data, user.id);
+      //const data = await response.json();
+      console.log(data , 'data.........................4');
     } catch (error) {
       console.log(error);
     }
@@ -103,7 +106,7 @@ const Preferences = () => {
             <CardContent>
               <form
                 className="flex gap-3 flex-col"
-                onSubmit={handleOperationTimeSubmit}
+                action={handleOperationTimeSubmit}
               >
                 {weekDays.map((day, index) => {
                   return (

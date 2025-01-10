@@ -219,9 +219,9 @@ export const findBookingById = async (id: number) => {
 }
 
 
-export const findBookingByDate = async (date: Date) => {
+export const findBookingByDate = async (date: Date, userId: string) => {
   const startDate = startOfDay(date); // e.g., 2025-01-07T00:00:00.000Z
-    const endDate = endOfDay(date); 
+  const endDate = endOfDay(date); 
 
   try {
     const booking = await client.booking.findMany({
@@ -229,6 +229,9 @@ export const findBookingByDate = async (date: Date) => {
         date : {
           gte: startDate,
           lte: endDate
+        },
+        service: {
+          userId
         }
       },
     });
