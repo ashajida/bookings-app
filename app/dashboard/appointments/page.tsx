@@ -187,9 +187,6 @@ const Appointments = () => {
                 </DialogDescription>
               </DialogHeader>
               <EditBookingForm setBookings={setBookings} prevBookings={bookings} selectedBooking={selectedBooking} />
-              <DialogFooter>
-                <Button type="submit">Save changes</Button>
-              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>

@@ -243,3 +243,78 @@ export const findBookingByDate = async (date: Date, userId: string) => {
     console.log(error);
   }
 }
+
+type Booking = {
+  date: Date;
+  serviceId: number;
+  status: string;
+  customerId: number;
+}
+
+export const updateBooking = async (data: Partial<Booking>, bookingId: number) => { 
+  const {customerId, ...filteredData} = data;
+  console.log(customerId, 'customerId');
+  try {
+    const booking = await client.booking.update({
+      where: {
+        id: bookingId
+      },
+      data: {
+        ...filteredData
+      },
+      include: {
+        customerBookings: {
+          include: {
+            customer: true,
+          },
+        },
+        service: true,
+      }
+    });
+
+    if(!booking) {
+      return {
+        success: false,
+        error: 'Booking not found'
+      }
+    }
+
+    const customerBooking = await updateCustomerBooking(customerId!, booking.customerBookings[0].id);
+
+    console.log(customerBooking, 'customerBooking');
+
+    return {
+      success: true,
+      data: booking,
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      error: error
+    }
+  }
+}
+
+
+const updateCustomerBooking = async (customerId: number, customerBookingId: number) => {
+  try {
+    const response = await client.customerBooking.update({
+      where: {
+        id: customerBookingId
+      },
+      data: {
+        customerId: customerId
+      }
+    })
+    return {
+      success: true,
+      data: response
+    }
+  } catch (e) {
+    return {
+      success: false,
+      error: e
+    }
+  }
+}

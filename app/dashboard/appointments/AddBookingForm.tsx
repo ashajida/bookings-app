@@ -24,11 +24,19 @@ import { ServicesContext } from "@/context/context";
 import { validateRequest } from "@/lib/validateRequest";
 import { getAviability } from "@/lib/http/avialability";
 import { findAllCustomers } from "@/lib/repository/customer/customer";
-import { findAllServices } from "@/lib/repository/service/service";
+import { findAllServices, findService } from "@/lib/repository/service/service";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { format, set } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import AddCustomerForm from "../customers/AddCustomerForm";
+import { getFilteredTimeSlotsByDate } from "@/lib/services/get-filtered-time-slots-2";
+import { findUserById } from "@/lib/repository/user/user";
 
 type Props = {
   setBookings: React.Dispatch<React.SetStateAction<[]>>;
@@ -37,7 +45,12 @@ type Props = {
   newCustomerDialog: boolean;
 };
 
-const AddBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCustomerDialog }: Props) => {
+const AddBookingForm = ({
+  setBookings,
+  prevBookings,
+  setNewCustomerDialog,
+  newCustomerDialog,
+}: Props) => {
   const [formState, action, isPending] = useFormState(
     createBookingAction,
     undefined
@@ -48,18 +61,36 @@ const AddBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCu
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [services, setServices] = useState<[]>([]);
+  const [serviceId, setServiceId] = useState<number>();
+
+  const [isfetchingTimeSlots, setIsFetchingTimeSlots] = useState(false);
+  const [currentTimeSlot, setCurrentTimeSlot] = useState<string>();
 
   const handleSelected = async (date?: Date) => {
     if (!date) return;
     setSelectedDate(date);
-    const { user } = await validateRequest();
-    if (!user) return;
-    const response = await getAviability({
-      username: user.business,
-      chosenDate: date,
-    });
-    if (response.success) {
-      setTimeSlots(response.data);
+    try {
+      setIsFetchingTimeSlots(true);
+      const { user } = await validateRequest();
+      if (!user) return;
+
+      if (!serviceId) return;
+
+      const service = await findService(serviceId);
+
+      console.log(service, serviceId,  "service....");
+
+      const times = await getFilteredTimeSlotsByDate(date, service, user.id);
+
+      console.log(times, "times....");
+
+      if (!times) return;
+
+      setTimeSlots(times);
+    } catch (error) {
+      console.log(error, "error....");
+    } finally {
+      setIsFetchingTimeSlots(false);
     }
   };
 
@@ -108,7 +139,9 @@ const AddBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCu
 
   return (
     <form className="flex gap-3 flex-col z-[-1]" action={action}>
-      <Select name="service-id">
+      <Select name="service-id" onValueChange={(value) => {
+        setServiceId(Number(value));
+      }}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Services" />
         </SelectTrigger>
@@ -159,7 +192,13 @@ const AddBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCu
       {formState?.date && (
         <span className="text-red-500 text-sm">{formState.date}</span>
       )}
-      <Select name="time-slot">
+      <Select
+        name="time-slot"
+        value={currentTimeSlot}
+        onValueChange={(e) => {
+          setCurrentTimeSlot(e);
+        }}
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Time Slot" />
         </SelectTrigger>
@@ -167,11 +206,14 @@ const AddBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCu
           <SelectGroup>
             <SelectLabel>Select Time</SelectLabel>
             {timeSlots.length ? (
-              timeSlots.map((time, index) => (
-                <SelectItem className="capitalize" key={index} value={time}>
-                  {time}
-                </SelectItem>
-              ))
+              timeSlots.map((time, index) => {
+
+                return (
+                  <SelectItem className="capitalize" key={index} value={time}>
+                    {time}
+                  </SelectItem>
+                );
+              })
             ) : (
               <span>No time slots</span>
             )}
@@ -213,14 +255,17 @@ const AddBookingForm = ({ setBookings, prevBookings, setNewCustomerDialog, newCu
       )}
       <Button className="w-fit ml-auto">Submit</Button>
       <Dialog open={newCustomerDialog} onOpenChange={setNewCustomerDialog}>
-            <DialogTrigger></DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Add Customer</DialogTitle>
-              </DialogHeader>
-              <AddCustomerForm setCustomer={setCustomers} prevCustomer={customers} />
-            </DialogContent>
-          </Dialog>
+        <DialogTrigger></DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Customer</DialogTitle>
+          </DialogHeader>
+          <AddCustomerForm
+            setCustomer={setCustomers}
+            prevCustomer={customers}
+          />
+        </DialogContent>
+      </Dialog>
     </form>
   );
 };

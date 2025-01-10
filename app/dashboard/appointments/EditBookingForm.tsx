@@ -26,7 +26,7 @@ import { getAviability } from "@/lib/http/avialability";
 import { findAllCustomers } from "@/lib/repository/customer/customer";
 import { findAllServices } from "@/lib/repository/service/service";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +38,7 @@ import AddCustomerForm from "../customers/AddCustomerForm";
 import { findBookingById } from "@/lib/repository/booking/booking";
 import { getFilteredTimeSlotsByDate } from "@/lib/services/get-filtered-time-slots-2";
 import { getfilteredTimeSlots } from "@/lib/services/get-filtered-time-slots";
+import { editBookingAction } from "@/lib/actions/booking/edit-booking-action";
 
 type Props = {
   setBookings: React.Dispatch<React.SetStateAction<[]>>;
@@ -55,7 +56,7 @@ const EditBookingForm = ({
   selectedBooking,
 }: Props) => {
   const [formState, action, isPending] = useFormState(
-    createBookingAction,
+    editBookingAction,
     undefined
   );
   const { toast } = useToast();
@@ -65,7 +66,10 @@ const EditBookingForm = ({
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [services, setServices] = useState<[]>([]);
   const [isfetchingTimeSlots, setIsFetchingTimeSlots] = useState(false);
-  const [currentTimeSlot, setCurrentTimeSlot] = useState<string>();
+  const [currentTimeSlot, setCurrentTimeSlot] = useState<string>(
+    format(selectedBooking.date, "HH:mm")
+  );
+  const [hasOpened, setHasOpened] = useState(false);
 
   const handleSelected = async (date?: Date) => {
     if (!date) return;
@@ -77,20 +81,21 @@ const EditBookingForm = ({
       const response = await findBookingById(selectedBooking.id);
 
       if (!response.success && response.data) return;
-      
-      setCurrentTimeSlot(format(response.data.date, "HH:mm"));
 
-      const times = await getFilteredTimeSlotsByDate(date, selectedBooking, user.id);
+      setCurrentTimeSlot(format(response.data!.date!, "HH:mm"));
 
-      console.log(times, "times....");
-      
-      const filteredTimeSlots = await getfilteredTimeSlots(date, user.id);
+      console.log(
+        format(response.data!.date!, "HH:mm"),
+        "current time slot...."
+      );
 
-      if(!filteredTimeSlots) return;
+      const service = selectedBooking!.service;
 
-      setTimeSlots(filteredTimeSlots);
+      const times = await getFilteredTimeSlotsByDate(date, service, user.id);
 
-      console.log(filteredTimeSlots, "timeSlots....");
+      if (!times) return;
+
+      setTimeSlots(times);
     } catch (error) {
       console.log(error, "error....");
     } finally {
@@ -98,15 +103,20 @@ const EditBookingForm = ({
     }
   };
 
-
-
   useEffect(() => {
+    console.log(formState, "form state-1....");
     if (formState?.formSuccess) {
       toast({
         title: "Success",
         description: `${formState?.formSuccess}`,
       });
-      setBookings([...prevBookings, formState?.newService]);
+      console.log(formState, "form state....");
+      const updatedBooking = prevBookings.map((booking) =>
+        booking.id === selectedBooking.id ? formState!.booking.data : booking
+      );
+      console.log(updatedBooking, "updated booking....");
+      setBookings(updatedBooking);
+      action.reset();
     }
 
     if (formState?.formError) {
@@ -134,45 +144,19 @@ const EditBookingForm = ({
       setCustomers(response);
     };
 
-
-
-    // const getTimeSlots = async (date?: Date) => {
-    //   if (!date) return;
-    //   setSelectedDate(date);
-    //   const timeSlots = await getAviability({
-    //     id: user.id,
-    //     chosenDate: date,
-    //   });
-
-    //   if (!timeSlots.success) return;
-
-    //   const bookings = await findBookingByDate(selectedBooking.date);
-    //   if(!bookings.success) return;
-
-    //   const timeSlots = bookings.data.map((booking) => format(booking.date, "HH:mm"));
-
-    //   const filteredTimeSlots = timeSlots.data.filter((time) => {
-    //     return !timeSlots.includes(time);
-    //   });
-
-    //   setTimeSlots(filteredTimeSlots);
-  
-    // };
-
     getServices();
     getCustomers();
     handleSelected(selectedBooking?.date);
-    //getTimeSlots(selectedBooking?.date);
 
     return () => {
       setServices([]);
       setCustomers([]);
-      // setTimeSlots([]);
     };
   }, [formState?.formSuccess, formState?.formError, toast]);
 
   return (
     <form className="flex gap-3 flex-col z-[-1]" action={action}>
+      <input hidden value={selectedBooking?.id} name="booking-id" />
       <Select
         name="service-id"
         defaultValue={selectedBooking?.service?.id.toString()}
@@ -231,17 +215,13 @@ const EditBookingForm = ({
       {formState?.date && (
         <span className="text-red-500 text-sm">{formState.date}</span>
       )}
-
-      <h1>
-        {!isfetchingTimeSlots
-          ? timeSlots[timeSlots.indexOf(format(selectedBooking.date, "HH:mm"))]
-          : "No time slots"}
-      </h1>
-
       <Select
         name="time-slot"
         value={currentTimeSlot}
-        onValueChange={(e) => setCurrentTimeSlot(e)}
+        onValueChange={(e) => {
+          setCurrentTimeSlot(e);
+          !hasOpened && setHasOpened(true);
+        }}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Time Slot" />
@@ -249,12 +229,24 @@ const EditBookingForm = ({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Select Time</SelectLabel>
+
+            <SelectItem
+              className="capitalize"
+              value={format(selectedBooking.date, "HH:mm")}
+            >
+              {format(selectedBooking.date, "HH:mm")}
+            </SelectItem>
+
             {timeSlots.length ? (
-              timeSlots.map((time, index) => (
-                <SelectItem className="capitalize" key={index} value={time}>
-                  {time}
-                </SelectItem>
-              ))
+              timeSlots.map((time, index) => {
+                if (time === format(selectedBooking.date, "HH:mm")) return;
+
+                return (
+                  <SelectItem className="capitalize" key={index} value={time}>
+                    {time}
+                  </SelectItem>
+                );
+              })
             ) : (
               <span>No time slots</span>
             )}
