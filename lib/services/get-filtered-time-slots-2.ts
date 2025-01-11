@@ -7,14 +7,6 @@ export const getFilteredTimeSlotsByDate = async (
   service,
   userId: string
 ) => {
-  console.log(date, service, userId, "date, service, userId");
-  // to book an appointment a user can select a date and a service and the app will return a list of available slots exluding slots already booked for that day
-
-  // service
-  // date
-
-  // booking with the same service id and get the times and duration
-  // timeslots
 
   const bookings = await findBookingByDate(date, userId);
   if (!bookings.success) return;
@@ -23,7 +15,7 @@ export const getFilteredTimeSlotsByDate = async (
     format(booking.date, "HH:mm")
   ); // [09:00, 10:00, 11:00]
 
-  const day = format(date, 'EEEE').toLowerCase()
+  const day = format(date, "EEEE").toLowerCase();
 
   const operationTime = await findOperationTimeByDay(day, userId); // Monday '09:00, 17:00'
 
@@ -31,22 +23,24 @@ export const getFilteredTimeSlotsByDate = async (
 
   const openingClosingTimes = operationTime.data[day].split(","); // ['09:00', '17:00']
 
-
   const timeSlots = await genarateTimes(
     openingClosingTimes[0],
     openingClosingTimes[1],
-    service.duration
+    Number(service.duration)
   ); // list of  times from 09:00 to 17:00
 
-  console.log(timeSlots, "timeSlots123");
-
   const filteredTimeSlots = timeSlots.filter((time) => {
-    const slotStart = parse(time, "HH:mm", new Date());
-    const slotEnd = addMinutes(slotStart, service.duration);
+    if (!time) {
+      console.log(time, "false...");
+      return false;
+    }
 
-    return !bookingTimes.some(({ start, end }) => {
-      const bookingStart = parse(start, "HH:mm", new Date());
-      const bookingEnd = parse(end, "HH:mm", new Date());
+    const slotStart = parse(time, "HH:mm", new Date());
+    const slotEnd = addMinutes(slotStart, Number(service.duration));
+
+    return !bookingTimes.some((time) => {
+      const bookingStart = parse(time, "HH:mm", new Date());
+      const bookingEnd = addMinutes(bookingStart, Number(service.duration));
 
       // Check if the slot overlaps with the booking
       return (
@@ -56,11 +50,10 @@ export const getFilteredTimeSlotsByDate = async (
     });
   });
 
-  console.log(filteredTimeSlots, "filtered");
   return filteredTimeSlots;
 };
 
-const genarateTimes = (opening: string, closing: string, interval: number) => {
+const genarateTimes = (opening: string, closing: string, interval = 30) => {
   const times = [];
   let current = parse(opening, "HH:mm", new Date());
   const endTime = parse(closing, "HH:mm", new Date());
