@@ -1,8 +1,11 @@
+"use server";
+
 import { deleteCustomer } from "@/lib/repository/customer/customer";
 
 export const deleteCustomerAction = async (prevState: unknown,
     formData: FormData) => {
     const customerId = formData.get('customer-id')?.toString();
+    console.log('customerID', customerId);
     if(!customerId) return;
 
     try {

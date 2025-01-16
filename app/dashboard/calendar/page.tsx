@@ -306,7 +306,7 @@ const CalendarPage = () => {
                               .split("T")[1]
                               .slice(0, 5)}
                           </span>
-                          <Badge className="block text-sm">Approved</Badge>
+                          <Badge className="block text-sm">{booking.status}</Badge>
                         </div>
                       ))
                     : ""}

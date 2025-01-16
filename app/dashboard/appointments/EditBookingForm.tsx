@@ -24,7 +24,7 @@ import { ServicesContext } from "@/context/context";
 import { validateRequest } from "@/lib/validateRequest";
 import { getAviability } from "@/lib/http/avialability";
 import { findAllCustomers } from "@/lib/repository/customer/customer";
-import { findAllServices } from "@/lib/repository/service/service";
+import { findAllServices, findService } from "@/lib/repository/service/service";
 import { Calendar } from "@/components/ui/calendar";
 import { format, set } from "date-fns";
 import {
@@ -39,6 +39,8 @@ import { findBookingById } from "@/lib/repository/booking/booking";
 import { getFilteredTimeSlotsByDate } from "@/lib/services/get-filtered-time-slots-2";
 import { getfilteredTimeSlots } from "@/lib/services/get-filtered-time-slots";
 import { editBookingAction } from "@/lib/actions/booking/edit-booking-action";
+import { findAllBlockedDates } from "@/lib/repository/blocked-days/blocked-date";
+import { findDaysOff } from "@/lib/repository/operation-time/operation-time";
 
 type Props = {
   setBookings: React.Dispatch<React.SetStateAction<[]>>;
@@ -46,6 +48,12 @@ type Props = {
   setNewCustomerDialog: React.Dispatch<React.SetStateAction<boolean>>;
   newCustomerDialog: boolean;
   selectedBooking: {};
+};
+
+const fetchData = async () => {
+  const { user } = await validateRequest();
+  if (!user) return;
+  const response = promise.all([]);
 };
 
 const EditBookingForm = ({
@@ -70,6 +78,8 @@ const EditBookingForm = ({
     format(selectedBooking.date, "HH:mm")
   );
   const [hasOpened, setHasOpened] = useState(false);
+  const [blockedDaysArray, setBlockedDaysArray] = useState<[]>();
+  const [blockedDates, setBlockedDates] = useState<[]>();
 
   const handleSelected = async (date?: Date) => {
     if (!date) return;
@@ -78,21 +88,14 @@ const EditBookingForm = ({
       setIsFetchingTimeSlots(true);
       const { user } = await validateRequest();
       if (!user) return;
-      const response = await findBookingById(selectedBooking.id);
 
+      const response = await findBookingById(selectedBooking.id);
       if (!response.success && response.data) return;
 
       setCurrentTimeSlot(format(response.data!.date!, "HH:mm"));
 
-      console.log(
-        format(response.data!.date!, "HH:mm"),
-        "current time slot...."
-      );
-
       const service = selectedBooking!.service;
-
       const times = await getFilteredTimeSlotsByDate(date, service, user.id);
-
       if (!times) return;
 
       setTimeSlots(times);
@@ -103,20 +106,38 @@ const EditBookingForm = ({
     }
   };
 
+  const handleServiceChange = async (serviceId: string) => {
+    const { user } = await validateRequest();
+    if (!user) return;
+
+    const service = await findService(Number(serviceId));
+    if (!service) return;
+
+    if (!selectedDate) return;
+
+    const times = await getFilteredTimeSlotsByDate(
+      selectedDate,
+      service,
+      user.id
+    );
+
+    if (!times) return;
+
+    setTimeSlots(times);
+  };
+
   useEffect(() => {
-    console.log(formState, "form state-1....");
     if (formState?.formSuccess) {
       toast({
         title: "Success",
         description: `${formState?.formSuccess}`,
       });
-      console.log(formState, "form state....");
-      const updatedBooking = prevBookings.map((booking) =>
-        booking.id === selectedBooking.id ? formState!.booking.data : booking
-      );
-      console.log(updatedBooking, "updated booking....");
+      const updatedBooking = prevBookings.map((booking) => {
+        return booking.id === formState!.booking.data?.data.id
+          ? formState!.booking.data.data
+          : booking;
+      });
       setBookings(updatedBooking);
-      action.reset();
     }
 
     if (formState?.formError) {
@@ -144,15 +165,43 @@ const EditBookingForm = ({
       setCustomers(response);
     };
 
+    const getBlockedDates = async () => {
+      const { user } = await validateRequest();
+      if (!user) return;
+      try {
+        const response = await findAllBlockedDates(user.business);
+        if (!response) return;
+
+        setBlockedDates(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getBlockedDays = async () => {
+      const { user } = await validateRequest();
+      if (!user) return;
+      try {
+        const response = await findDaysOff(user.business);
+        if (!response) return;
+
+        setBlockedDaysArray(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     getServices();
     getCustomers();
     handleSelected(selectedBooking?.date);
+    getBlockedDates();
+    getBlockedDays();
 
     return () => {
       setServices([]);
       setCustomers([]);
     };
-  }, [formState?.formSuccess, formState?.formError, toast]);
+  }, [formState?.success, formState?.formError, toast, formState?.submittedAt]);
 
   return (
     <form className="flex gap-3 flex-col z-[-1]" action={action}>
@@ -160,6 +209,8 @@ const EditBookingForm = ({
       <Select
         name="service-id"
         defaultValue={selectedBooking?.service?.id.toString()}
+        onValueChange={handleServiceChange}
+        disabled={!services.length ? true : false}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Services" />
@@ -208,6 +259,17 @@ const EditBookingForm = ({
             mode="single"
             selected={selectedDate}
             onSelect={handleSelected}
+            fromDate={selectedBooking}
+            defaultMonth={selectedDate}
+            disabled={{
+              dayOfWeek:
+                Array.isArray(blockedDaysArray) && blockedDaysArray.length
+                  ? blockedDaysArray
+                  : [],
+              ...(Array.isArray(blockedDates) && blockedDates.length
+                ? blockedDates.map((date) => new Date(date.date))
+                : []),
+            }}
           />
         </PopoverContent>
       </Popover>
@@ -222,6 +284,7 @@ const EditBookingForm = ({
           setCurrentTimeSlot(e);
           !hasOpened && setHasOpened(true);
         }}
+        disabled={!timeSlots.length ? true : false}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Time Slot" />
@@ -277,17 +340,36 @@ const EditBookingForm = ({
                   {`${customer.firstName} ${customer.lastName}`}
                 </SelectItem>
               ))}
-            <Button
+            {/* <Button
               onClick={() => setNewCustomerDialog(!newCustomerDialog)}
               className="w-full"
             >
               Add customer
-            </Button>
+            </Button> */}
           </SelectGroup>
         </SelectContent>
       </Select>
       {formState?.timeSlot && (
         <span className="text-red-500 text-sm">{formState.timeSlot}</span>
+      )}
+      <Select name="booking-status">
+        <SelectTrigger className="w-full capitalize">
+          <SelectValue placeholder={selectedBooking?.status} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Status</SelectLabel>
+            <SelectItem value="approve">Approve</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="cancelled" className="text-red-500">
+              Cancelled
+            </SelectItem>
+            <SelectItem value="no-show">No-show</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {formState?.status && (
+        <span className="text-red-500 text-sm">{formState.status}</span>
       )}
       <Button className="w-fit ml-auto">Submit</Button>
       <Dialog open={newCustomerDialog} onOpenChange={setNewCustomerDialog}>

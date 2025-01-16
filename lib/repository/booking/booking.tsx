@@ -208,6 +208,14 @@ export const findBookingById = async (id: number) => {
       where: {
         id,
       },
+      include: {
+        customerBookings: {
+          include: {
+            customer: true,
+          },
+        },
+        service: true,
+      }
     });
     return {
       success: true,
@@ -253,7 +261,6 @@ type Booking = {
 
 export const updateBooking = async (data: Partial<Booking>, bookingId: number) => { 
   const {customerId, ...filteredData} = data;
-  console.log(customerId, 'customerId');
   try {
     const booking = await client.booking.update({
       where: {
@@ -281,11 +288,12 @@ export const updateBooking = async (data: Partial<Booking>, bookingId: number) =
 
     const customerBooking = await updateCustomerBooking(customerId!, booking.customerBookings[0].id);
 
-    console.log(customerBooking, 'customerBooking');
+
+    const updatedBooking = await findBookingById(bookingId);    
 
     return {
       success: true,
-      data: booking,
+      data: updatedBooking,
     };
 
   } catch (error) {
@@ -305,6 +313,28 @@ const updateCustomerBooking = async (customerId: number, customerBookingId: numb
       },
       data: {
         customerId: customerId
+      }
+    })
+    return {
+      success: true,
+      data: response
+    }
+  } catch (e) {
+    return {
+      success: false,
+      error: e
+    }
+  }
+}
+
+export const updateBookingStatus = async (status: string, bookingId: number) => {
+  try {
+    const response = await client.booking.update({
+      where: {
+        id: bookingId
+      },
+      data: {
+        status
       }
     })
     return {

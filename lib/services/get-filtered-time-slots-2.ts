@@ -11,9 +11,13 @@ export const getFilteredTimeSlotsByDate = async (
   const bookings = await findBookingByDate(date, userId);
   if (!bookings.success) return;
 
+
   const bookingTimes = bookings.data.map((booking) =>
     format(booking.date, "HH:mm")
   ); // [09:00, 10:00, 11:00]
+
+  console.log(bookings, 'times');
+
 
   const day = format(date, "EEEE").toLowerCase();
 
@@ -28,6 +32,9 @@ export const getFilteredTimeSlotsByDate = async (
     openingClosingTimes[1],
     Number(service.duration)
   ); // list of  times from 09:00 to 17:00
+
+  console.log(service, 'opening')
+
 
   const filteredTimeSlots = timeSlots.filter((time) => {
     if (!time) {

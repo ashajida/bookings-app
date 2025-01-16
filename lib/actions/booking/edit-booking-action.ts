@@ -9,12 +9,13 @@ const bookingSchema = z.object({
   customerId: z.string().min(1),
   serviceId: z.string().min(1),
   bookingId: z.string().min(1),
+  status: z.string().min(1),
 });
 
 type BookingData = z.infer<typeof bookingSchema>;
 
 export const editBookingWrapper = async (
-  { date, serviceId, customerId },
+  { date, serviceId, customerId, status },
   bookingId
 ) => {
   try {
@@ -27,7 +28,7 @@ export const editBookingWrapper = async (
     const data = {
       date,
       serviceId: Number(serviceId),
-      status: "pending",
+      status,
       customerId: Number(customerId),
     };
 
@@ -53,6 +54,7 @@ export const editBookingAction = async (
     date: formData.get("date")?.toString() || "",
     timeSlot: formData.get("time-slot")?.toString() || "",
     bookingId: formData.get("booking-id")?.toString() || "",
+    status: formData.get("booking-status")?.toString() || "",
   };
 
   const result = bookingSchema.safeParse(bookingData);
@@ -67,6 +69,7 @@ export const editBookingAction = async (
       timeSlot: errors.fieldErrors.timeSlot?.[0],
       customerId: errors.fieldErrors.customerId?.[0],
       serviceId: errors.fieldErrors.serviceId?.[0],
+      status: errors.fieldErrors.status?.[0],
     };
   }
 
@@ -75,6 +78,7 @@ export const editBookingAction = async (
       serviceId: result.data.serviceId,
       date: _date,
       customerId: result.data.customerId,
+      status: result.data.status
     },
     Number(result.data.bookingId)
   );
@@ -82,11 +86,13 @@ export const editBookingAction = async (
   if (!response) {
     return {
       formError: "An error has occured.",
+      submittedAt: Date.now(),
     };
   }
 
   return {
     formSuccess: "Successfully updated booking.",
     booking: response,
+    submittedAt: Date.now(),
   };
 };

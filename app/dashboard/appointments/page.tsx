@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -27,7 +27,10 @@ import {
 } from "@/components/ui/dialog";
 import { Service } from "@prisma/client";
 import { validateRequest } from "@/lib/validateRequest";
-import { findAllBookings } from "@/lib/repository/booking/booking";
+import {
+  findAllBookings,
+  updateBookingStatus,
+} from "@/lib/repository/booking/booking";
 import {
   Select,
   SelectContent,
@@ -57,6 +60,9 @@ import { ServicesContext } from "@/context/context";
 import AddBookingForm from "./AddBookingForm";
 import AddCustomerForm from "../customers/AddCustomerForm";
 import EditBookingForm from "./EditBookingForm";
+import { useFormState } from "react-dom";
+import { useToast } from "@/hooks/use-toast";
+import { bookingStatusAction } from "@/lib/actions/booking/booking-status";
 
 const Appointments = () => {
   const [bookings, setBookings] = useState<[]>([]);
@@ -65,6 +71,12 @@ const Appointments = () => {
   const [newCustomerDialog, setNewCustomerDialog] = useState(false);
   const [customers, setCustomers] = useState<[]>([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [formState, action, isPending] = useFormState(
+    bookingStatusAction,
+    undefined
+  );
+  const { toast } = useToast();
+  const bookingStatusForm = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const getBookings = async () => {
@@ -77,15 +89,19 @@ const Appointments = () => {
       setBookings(response);
     };
 
-    
+    if (formState?.formSuccess) {
+      toast({
+        title: "Success",
+        description: `${formState?.formSuccess}`,
+      });
+    }
+
     getBookings();
 
     return () => {
       setBookings([]);
     };
-  }, []);
-
-
+  }, [formState?.formSuccess, formState?.submittedAt]);
 
   return (
     <div className="container mx-auto">
@@ -126,34 +142,43 @@ const Appointments = () => {
                     <TableCell>{booking.service.serviceName}</TableCell>
                     <TableCell>{booking.service.duration}</TableCell>
                     <TableCell>
-                      <form>
-                        <Select>
+                      <form ref={bookingStatusForm} action={action}>
+                        <input hidden value={booking.id} name="booking-id" />
+                        <Select name="booking-status" onValueChange={() => bookingStatusForm.current?.requestSubmit()}>
                           <SelectTrigger className="w-full capitalize">
                             <SelectValue placeholder={booking.status} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>{booking.status}</SelectLabel>
-                              <SelectItem value="apple">Approve</SelectItem>
-                              <SelectItem value="grapes">Pending</SelectItem>
+                              <SelectItem value="approve">Approve</SelectItem>
+                              <SelectItem value="pending">Pending</SelectItem>
                               <SelectItem
-                                value="banana"
+                                value="cancelled"
                                 className="text-red-500"
                               >
                                 Cancelled
                               </SelectItem>
-                              <SelectItem value="blueberry">No-show</SelectItem>
+                              <SelectItem value="no-show">No-show</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
                       </form>
                     </TableCell>
                     <TableCell className="flex justify-end gap-2">
-                      <Button onClick={() => {
-                        setSelectedBooking(booking)
-                        setOpen(!open)
-                        }}>Edit</Button>
-                      <DeleteBookingForm id={booking.id.toString()} setBookings={setBookings} prevBookings={bookings}/>
+                      <Button
+                        onClick={() => {
+                          setSelectedBooking(booking);
+                          setOpen(!open);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <DeleteBookingForm
+                        id={booking.id.toString()}
+                        setBookings={setBookings}
+                        prevBookings={bookings}
+                      />
                     </TableCell>
                   </TableRow>
                 );
@@ -168,11 +193,15 @@ const Appointments = () => {
               <DialogHeader>
                 <DialogTitle>Add booking</DialogTitle>
                 <DialogDescription>
-                  Add new booking here. Click save when you're
-                  done.
+                  Add new booking here. Click save when you're done.
                 </DialogDescription>
               </DialogHeader>
-              <AddBookingForm setNewCustomerDialog={setNewCustomerDialog} newCustomerDialog={newCustomerDialog} setBookings={setBookings} prevBookings={bookings} />
+              <AddBookingForm
+                setNewCustomerDialog={setNewCustomerDialog}
+                newCustomerDialog={newCustomerDialog}
+                setBookings={setBookings}
+                prevBookings={bookings}
+              />
             </DialogContent>
           </Dialog>
 
@@ -182,11 +211,14 @@ const Appointments = () => {
               <DialogHeader>
                 <DialogTitle>Edit booking</DialogTitle>
                 <DialogDescription>
-                  Make changes to booking. Click save when you&amp;re
-                  done.
+                  Make changes to booking. Click save when you&amp;re done.
                 </DialogDescription>
               </DialogHeader>
-              <EditBookingForm setBookings={setBookings} prevBookings={bookings} selectedBooking={selectedBooking} />
+              <EditBookingForm
+                setBookings={setBookings}
+                prevBookings={bookings}
+                selectedBooking={selectedBooking}
+              />
             </DialogContent>
           </Dialog>
         </div>
